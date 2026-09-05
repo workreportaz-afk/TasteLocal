@@ -55,7 +55,7 @@ class VendorAndExperienceModelTests(APITestCase):
 class ExperienceAPITests(APITestCase):
     def setUp(self):
         vendor_user = User.objects.create_user(username="vendoruser2", password="pass12345")
-        vendor = Vendor.objects.create(user=vendor_user, business_name="API Test Vendor")
+        vendor = Vendor.objects.create(user=vendor_user, business_name="API Test Vendor", is_approved=True)
         FoodExperience.objects.create(
             vendor=vendor,
             title="Public Listing",
@@ -206,6 +206,12 @@ class ItineraryStopTests(APITestCase):
         self.assertEqual(list_response.data["count"], 1)
         self.assertEqual(list_response.data["results"][0]["notes"], "Try the laksa here")
 
+    def test_cannot_add_the_same_experience_to_trip_twice(self):
+        self.client.force_authenticate(self.tourist)
+        self.client.post("/api/itinerary/", {"experience": self.experience.id})
+        response = self.client.post("/api/itinerary/", {"experience": self.experience.id})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class VendorApprovalGateTests(APITestCase):
     def setUp(self):
@@ -239,3 +245,50 @@ class VendorApprovalGateTests(APITestCase):
         response = self.client.get("/api/experiences/")
         ids = [r["id"] for r in response.data["results"]]
         self.assertIn(self.pending_experience.id, ids)
+
+
+class RoleAndVendorRegistrationTests(APITestCase):
+    def test_default_registration_is_tourist_role(self):
+        self.client.post("/api/auth/register/", {
+            "username": "plaintourist", "email": "t@example.com", "password": "a-strong-password-123",
+        })
+        login = self.client.post("/api/auth/login/", {
+            "username": "plaintourist", "password": "a-strong-password-123",
+        })
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
+        me = self.client.get("/api/auth/me/")
+        self.assertEqual(me.data["role"], "tourist")
+        self.assertIsNone(me.data["vendor_id"])
+
+    def test_vendor_registration_creates_unapproved_vendor_profile(self):
+        response = self.client.post("/api/auth/register/", {
+            "username": "newvendor", "email": "v@example.com", "password": "a-strong-password-123",
+            "account_type": "vendor", "business_name": "New Vendor Stall",
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        vendor = Vendor.objects.get(user__username="newvendor")
+        self.assertEqual(vendor.business_name, "New Vendor Stall")
+        self.assertFalse(vendor.is_approved)
+
+        login = self.client.post("/api/auth/login/", {
+            "username": "newvendor", "password": "a-strong-password-123",
+        })
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
+        me = self.client.get("/api/auth/me/")
+        self.assertEqual(me.data["role"], "vendor")
+        self.assertEqual(me.data["vendor_id"], vendor.id)
+        self.assertFalse(me.data["vendor_is_approved"])
+
+    def test_vendor_registration_requires_business_name(self):
+        response = self.client.post("/api/auth/register/", {
+            "username": "novendorname", "email": "x@example.com", "password": "a-strong-password-123",
+            "account_type": "vendor",
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_staff_user_has_admin_role(self):
+        admin_user = User.objects.create_user(username="staffuser", password="pass12345", is_staff=True)
+        self.client.force_authenticate(admin_user)
+        me = self.client.get("/api/auth/me/")
+        self.assertEqual(me.data["role"], "admin")
