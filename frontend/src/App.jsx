@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import NavBar from "./components/NavBar.jsx";
+import RequireRole from "./components/RequireRole.jsx";
 import Home from "./pages/Home.jsx";
 import ExperienceDetail from "./pages/ExperienceDetail.jsx";
 import Bookings from "./pages/Bookings.jsx";
@@ -16,11 +17,11 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/experiences/:id" element={<ExperienceDetail />} />
-          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/bookings" element={<RequireRole allow={["tourist"]}><Bookings /></RequireRole>} />
           <Route path="/login" element={<Login />} />
-          <Route path="/vendor" element={<VendorDashboard />} />
-          <Route path="/saved" element={<Saved />} />
-          <Route path="/trip" element={<PlanMyTrip />} />
+          <Route path="/vendor" element={<RequireRole allow={["vendor"]}><VendorDashboard /></RequireRole>} />
+          <Route path="/saved" element={<RequireRole allow={["tourist"]}><Saved /></RequireRole>} />
+          <Route path="/trip" element={<RequireRole allow={["tourist"]}><PlanMyTrip /></RequireRole>} />
         </Routes>
       </main>
     </div>

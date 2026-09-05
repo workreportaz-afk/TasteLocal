@@ -6,20 +6,69 @@ from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, It
 
 
 class UserSerializer(serializers.ModelSerializer):
+    role = serializers.SerializerMethodField()
+    vendor_id = serializers.SerializerMethodField()
+    vendor_is_approved = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name"]
+        fields = [
+            "id", "username", "email", "first_name", "last_name",
+            "role", "vendor_id", "vendor_is_approved",
+        ]
+
+    def get_role(self, obj):
+        # Three roles: admin (Django staff/superuser), vendor (has a Vendor
+        # profile), tourist (everyone else). Checked in this order because a
+        # staff account could technically also have a vendor profile.
+        if obj.is_staff or obj.is_superuser:
+            return "admin"
+        if hasattr(obj, "vendor_profile"):
+            return "vendor"
+        return "tourist"
+
+    def get_vendor_id(self, obj):
+        vendor = getattr(obj, "vendor_profile", None)
+        return vendor.id if vendor else None
+
+    def get_vendor_is_approved(self, obj):
+        vendor = getattr(obj, "vendor_profile", None)
+        return vendor.is_approved if vendor else None
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
+    account_type = serializers.ChoiceField(
+        choices=["tourist", "vendor"], write_only=True, default="tourist"
+    )
+    business_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password", "first_name", "last_name"]
+        fields = [
+            "id", "username", "email", "password", "first_name", "last_name",
+            "account_type", "business_name",
+        ]
 
+    def validate(self, attrs):
+        if attrs.get("account_type") == "vendor" and not attrs.get("business_name"):
+            raise serializers.ValidationError(
+                {"business_name": "Business name is required for a vendor account."}
+            )
+        return attrs
+
+    @transaction.atomic
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        account_type = validated_data.pop("account_type", "tourist")
+        business_name = validated_data.pop("business_name", "")
+        user = User.objects.create_user(**validated_data)
+        if account_type == "vendor":
+            # New vendors start unapproved -- they go through the same
+            # admin-approval gate as any vendor, so their listings stay
+            # hidden from public browsing until approved (see
+            # FoodExperienceViewSet.get_queryset).
+            Vendor.objects.create(user=user, business_name=business_name, is_approved=False)
+        return user
 
 
 class VendorSerializer(serializers.ModelSerializer):
@@ -164,6 +213,22 @@ class SavedExperienceSerializer(serializers.ModelSerializer):
         fields = ["id", "experience", "experience_detail", "saved_at"]
         read_only_fields = ["saved_at"]
 
+    def validate(self, attrs):
+        # DRF can't auto-generate a unique_together validator here because
+        # 'tourist' isn't a writable serializer field (it comes from
+        # request.user in create(), not the request body) -- without this,
+        # a duplicate save would hit the DB's unique constraint directly and
+        # surface as an unhandled 500 IntegrityError instead of a clean 400.
+        request = self.context.get("request")
+        experience = attrs.get("experience", getattr(self.instance, "experience", None))
+        if request and experience:
+            qs = SavedExperience.objects.filter(tourist=request.user, experience=experience)
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise serializers.ValidationError({"experience": "You've already saved this experience."})
+        return attrs
+
     def create(self, validated_data):
         validated_data["tourist"] = self.context["request"].user
         return super().create(validated_data)
@@ -179,6 +244,18 @@ class ItineraryStopSerializer(serializers.ModelSerializer):
             "notes", "order", "added_at",
         ]
         read_only_fields = ["added_at"]
+
+    def validate(self, attrs):
+        # Same rationale as SavedExperienceSerializer.validate above.
+        request = self.context.get("request")
+        experience = attrs.get("experience", getattr(self.instance, "experience", None))
+        if request and experience:
+            qs = ItineraryStop.objects.filter(tourist=request.user, experience=experience)
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise serializers.ValidationError({"experience": "This experience is already in your trip."})
+        return attrs
 
     def create(self, validated_data):
         validated_data["tourist"] = self.context["request"].user

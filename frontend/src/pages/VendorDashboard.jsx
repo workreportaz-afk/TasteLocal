@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import client from "../api/client.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const emptyForm = {
   title: "", description: "", category: "street_food",
@@ -8,6 +9,7 @@ const emptyForm = {
 };
 
 export default function VendorDashboard() {
+  const { vendorId, vendorIsApproved } = useAuth();
   const [experiences, setExperiences] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [imageFile, setImageFile] = useState(null);
@@ -16,12 +18,13 @@ export default function VendorDashboard() {
   const [geocoding, setGeocoding] = useState(false);
 
   function loadMine() {
-    // In production, filter server-side by ?vendor=<my vendor id>.
-    // Shown here as: fetch all, filter client-side to what the logged-in vendor owns.
-    client.get("/experiences/").then(({ data }) => setExperiences(data.results ?? data));
+    if (!vendorId) return;
+    client.get("/experiences/", { params: { vendor: vendorId } }).then(({ data }) => {
+      setExperiences(data.results ?? data);
+    });
   }
 
-  useEffect(loadMine, []);
+  useEffect(loadMine, [vendorId]);
 
   function update(field) {
     return (e) => setForm({ ...form, [field]: e.target.value });
@@ -102,6 +105,14 @@ export default function VendorDashboard() {
     <div className="vendor-dashboard">
       <h1>Vendor Dashboard</h1>
 
+      {vendorIsApproved === false && (
+        <p className="approval-banner">
+          Your vendor account is pending admin approval. You can still create
+          listings below — they just won't appear in public search results
+          until an admin approves your account.
+        </p>
+      )}
+
       <form onSubmit={handleSubmit} className="experience-form">
         <h2>List a new experience</h2>
         <label>Title <input value={form.title} onChange={update("title")} required /></label>
@@ -135,7 +146,7 @@ export default function VendorDashboard() {
         {message && <p className="message">{message}</p>}
       </form>
 
-      <h2>All listed experiences</h2>
+      <h2>Your listed experiences</h2>
       <ul className="vendor-list">
         {experiences.map((exp) => (
           <li key={exp.id} className="vendor-list-item">

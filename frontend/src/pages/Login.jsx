@@ -4,7 +4,9 @@ import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
   const [mode, setMode] = useState("login"); // "login" | "register"
-  const [form, setForm] = useState({ username: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    username: "", email: "", password: "", account_type: "tourist", business_name: "",
+  });
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login, register } = useAuth();
@@ -24,7 +26,11 @@ export default function Login() {
       }
       navigate("/");
     } catch (err) {
-      setError("Could not authenticate. Check your details and try again.");
+      const backendError = err.response?.data;
+      setError(
+        (backendError && Object.values(backendError).flat().join(" ")) ||
+        "Could not authenticate. Check your details and try again."
+      );
     }
   }
 
@@ -36,16 +42,38 @@ export default function Login() {
         <input value={form.username} onChange={update("username")} required />
       </label>
       {mode === "register" && (
-        <label>
-          Email
-          <input type="email" value={form.email} onChange={update("email")} required />
-        </label>
+        <>
+          <label>
+            Email
+            <input type="email" value={form.email} onChange={update("email")} required />
+          </label>
+          <label>
+            Account type
+            <select value={form.account_type} onChange={update("account_type")}>
+              <option value="tourist">Tourist — explore & book food experiences</option>
+              <option value="vendor">Vendor — list my food business</option>
+            </select>
+          </label>
+          {form.account_type === "vendor" && (
+            <label>
+              Business name
+              <input value={form.business_name} onChange={update("business_name")} required />
+            </label>
+          )}
+        </>
       )}
       <label>
         Password
         <input type="password" value={form.password} onChange={update("password")} required />
       </label>
       <button type="submit">{mode === "login" ? "Log in" : "Register"}</button>
+      {mode === "register" && form.account_type === "vendor" && (
+        <p className="muted">
+          Vendor accounts need admin approval before listings appear publicly —
+          you can still set up your listings right away, they just won't be
+          visible to tourists until approved.
+        </p>
+      )}
       {error && <p className="error">{error}</p>}
       <button type="button" className="link-button" onClick={() => setMode(mode === "login" ? "register" : "login")}>
         {mode === "login" ? "Need an account? Register" : "Already have an account? Log in"}

@@ -105,7 +105,8 @@ git push
 | Models | `Vendor`, `FoodExperience`, `Booking`, `Review`, `SavedExperience`, `ItineraryStop` (core/models.py) |
 | API | JWT auth (register/login/refresh/me), full CRUD for experiences/bookings/reviews/vendors/saved-spots/itinerary, search + category filter + ordering, geolocation "near me" search |
 | Permissions | Public read (approved vendors only); vendors edit only their own listings and can see their own pending listings; tourists only see/manage their own bookings/saved/itinerary |
-| Vendor approval | Unapproved vendors' listings are hidden from public browsing but visible to the vendor themselves; approve via Django admin (`Vendor.is_approved`) |
+| Roles | Three roles computed server-side: `admin` (Django staff/superuser), `vendor` (has a Vendor profile), `tourist` (everyone else) — returned by `/api/auth/me/` as `role`. Frontend gates pages by role (Vendor Dashboard is vendor-only, Saved/Trip/Bookings are tourist-only, admins can access everything) via `RequireRole` |
+| Vendor approval | Unapproved vendors' listings are hidden from public browsing but visible to the vendor themselves; new vendors self-register as unapproved and must be approved via Django admin (`Vendor.is_approved`) |
 | Geolocation | Free "near me" search via the haversine formula (`core/geo.py`, no external API) + free address-to-coordinates lookup via OpenStreetMap's Nominatim in the Vendor Dashboard |
 | Maps | Free OpenStreetMap + Leaflet map on each experience detail page, no API key |
 | Image uploads | Vendors can attach a photo when publishing a listing (multipart upload, Pillow-backed) |
