@@ -1,0 +1,14 @@
+# Development image: runs the Vite dev server with hot module reload.
+# For production, use the multi-stage Dockerfile (nginx-served static build).
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

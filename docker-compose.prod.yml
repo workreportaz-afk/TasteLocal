@@ -1,0 +1,69 @@
+# Production-style stack: MySQL + Django (gunicorn, DEBUG=False)
+# + React built as static assets and served by nginx, which also
+# reverse-proxies /api, /admin, /static and /media to the backend.
+#
+# Usage:
+#   cp .env.example .env   (fill in REAL production secrets -- never commit this file)
+#   docker compose -f docker-compose.prod.yml up --build -d
+#
+# Frontend (public entry point): http://localhost  (port 80)
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Note: no host port published here -- only the backend container
+    # needs to reach MySQL, so it stays off the public network entirely.
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DEBUG: "False"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: 3306
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn tastelocal.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile - --error-logfile -"
+    # No host port published -- only nginx talks to this container,
+    # over the internal docker-compose network.
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    volumes:
+      - media_data:/usr/share/nginx/media:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  media_data:

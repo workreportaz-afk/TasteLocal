@@ -1,0 +1,32 @@
+# --- Secrets: never commit real credentials ---
+.env
+backend/.env
+!.env.example
+!backend/.env.example
+
+# --- Python / Django ---
+backend/venv/
+backend/env/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/*.log
+
+# --- Node / React ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# --- Docker ---
+# (compose files and Dockerfiles ARE committed -- only runtime volumes are local)
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
