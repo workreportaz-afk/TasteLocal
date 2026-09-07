@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 
 export default function Bookings() {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
@@ -10,15 +12,15 @@ export default function Bookings() {
 
   return (
     <div>
-      <h1>My Bookings</h1>
+      <h1>{t("bookings.title")}</h1>
       <table className="bookings-table">
         <thead>
           <tr>
-            <th>Experience</th>
-            <th>Date</th>
-            <th>Participants</th>
-            <th>Total</th>
-            <th>Status</th>
+            <th>{t("bookings.experience")}</th>
+            <th>{t("bookings.date")}</th>
+            <th>{t("bookings.participants")}</th>
+            <th>{t("bookings.total")}</th>
+            <th>{t("bookings.status")}</th>
           </tr>
         </thead>
         <tbody>
@@ -28,12 +30,12 @@ export default function Bookings() {
               <td>{new Date(b.booking_date).toLocaleString()}</td>
               <td>{b.number_of_participants}</td>
               <td>${b.total_price}</td>
-              <td><span className={`status status-${b.status}`}>{b.status}</span></td>
+              <td><span className={`status status-${b.status}`}>{t(`bookingStatus.${b.status}`)}</span></td>
             </tr>
           ))}
         </tbody>
       </table>
-      {bookings.length === 0 && <p>You haven't booked any experiences yet.</p>}
+      {bookings.length === 0 && <p>{t("bookings.empty")}</p>}
     </div>
   );
 }

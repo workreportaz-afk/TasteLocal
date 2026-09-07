@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext.jsx";
 
 /**
@@ -6,22 +7,20 @@ import { useAuth } from "../context/AuthContext.jsx";
  * Admins can always pass, regardless of `allow` -- they're the superset role.
  */
 export default function RequireRole({ allow, children }) {
+  const { t } = useTranslation();
   const { isAuthenticated, role, loading } = useAuth();
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>{t("common.loading")}</p>;
 
   if (!isAuthenticated) {
-    return <p>Please log in to view this page.</p>;
+    return <p>{t("roleBlocked.loginPrompt")}</p>;
   }
 
   if (role !== "admin" && !allow.includes(role)) {
     return (
       <div className="role-blocked">
-        <h2>Not available for your account</h2>
-        <p className="muted">
-          This page is only available to {allow.join(" or ")} accounts.
-          You're logged in as a {role} account.
-        </p>
+        <h2>{t("roleBlocked.title")}</h2>
+        <p className="muted">{t("roleBlocked.message", { roles: allow.join(" / "), role })}</p>
       </div>
     );
   }

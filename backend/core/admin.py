@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop
+from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop, FoodExperienceTranslation
 
 
 @admin.register(Vendor)
@@ -37,3 +37,10 @@ class SavedExperienceAdmin(admin.ModelAdmin):
 class ItineraryStopAdmin(admin.ModelAdmin):
     list_display = ["tourist", "experience", "planned_date", "order"]
     list_filter = ["planned_date"]
+
+
+@admin.register(FoodExperienceTranslation)
+class FoodExperienceTranslationAdmin(admin.ModelAdmin):
+    list_display = ["experience", "language", "title", "updated_at"]
+    list_filter = ["language"]
+    search_fields = ["title", "experience__title"]

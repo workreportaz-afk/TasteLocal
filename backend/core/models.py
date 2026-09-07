@@ -64,6 +64,33 @@ class FoodExperience(models.Model):
         return round(agg["rating__avg"], 1) if agg["rating__avg"] else None
 
 
+class FoodExperienceTranslation(models.Model):
+    """
+    Cached machine translation of an experience's title/description.
+    Populated on first request in a given language (see core/translation.py),
+    so we call the free translation API once per experience per language,
+    not on every page view. Vendor names are intentionally not translated --
+    they're proper nouns, same as how Yelp/Google Maps don't translate
+    restaurant names.
+    """
+
+    class Language(models.TextChoices):
+        ZH = "zh", "Chinese (Simplified)"
+        MS = "ms", "Bahasa Melayu"
+
+    experience = models.ForeignKey(FoodExperience, on_delete=models.CASCADE, related_name="translations")
+    language = models.CharField(max_length=5, choices=Language.choices)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ["experience", "language"]
+
+    def __str__(self):
+        return f"{self.experience.title} [{self.language}]"
+
+
 class Booking(models.Model):
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"

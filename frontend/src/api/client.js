@@ -1,4 +1,5 @@
 import axios from "axios";
+import i18n from "../i18n/index.js";
 
 // In dev, talk directly to the local Django server. In production, this is
 // overridden by VITE_API_BASE_URL (see .env.production) to a relative "/api",
@@ -7,10 +8,16 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000
 
 const client = axios.create({ baseURL: API_BASE_URL });
 
-// Attach the access token to every request, if we have one.
+// Attach the access token, and the current UI language, to every request.
+// The backend uses ?lang= to return machine-translated titles/descriptions
+// for experiences (see core/translation.py) -- harmless for endpoints that
+// don't look at it.
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (config.method === "get") {
+    config.params = { ...config.params, lang: i18n.language };
+  }
   return config;
 });
 

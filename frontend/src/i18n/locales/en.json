@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "explore": "Explore",
+    "saved": "Saved",
+    "planTrip": "Plan My Trip",
+    "myBookings": "My Bookings",
+    "vendorDashboard": "Vendor Dashboard",
+    "adminPanel": "Admin Panel",
+    "login": "Login",
+    "logout": "Log out",
+    "hi": "Hi, {{name}} ({{role}})"
+  },
+  "home": {
+    "title": "Discover authentic local food experiences",
+    "subtitle": "Street food tours, cooking classes, and tastings — booked directly with local vendors.",
+    "searchPlaceholder": "Search experiences or vendors...",
+    "allCategories": "All categories",
+    "nearMe": "📍 Near me",
+    "nearMeOn": "📍 Near me (on)",
+    "locating": "Locating...",
+    "loading": "Loading experiences...",
+    "noResults": "No experiences match your search.",
+    "loadError": "Could not load experiences. Is the Django server running?",
+    "locationUnsupported": "Your browser doesn't support location — try searching by name instead.",
+    "locationDenied": "Couldn't get your location — check your browser's location permission.",
+    "distanceAway": "{{distance}} km away",
+    "noReviewsYet": "No reviews yet"
+  },
+  "category": {
+    "street_food": "Street Food Tour",
+    "fine_dining": "Fine Dining",
+    "cooking_class": "Cooking Class",
+    "market_tour": "Market Tour",
+    "tasting": "Tasting Session",
+    "other": "Other"
+  },
+  "login": {
+    "loginTitle": "Log in",
+    "registerTitle": "Create an account",
+    "username": "Username",
+    "email": "Email",
+    "accountType": "Account type",
+    "tourist": "Tourist — explore & book food experiences",
+    "vendor": "Vendor — list my food business",
+    "businessName": "Business name",
+    "password": "Password",
+    "loginButton": "Log in",
+    "registerButton": "Register",
+    "vendorApprovalNote": "Vendor accounts need admin approval before listings appear publicly — you can still set up your listings right away, they just won't be visible to tourists until approved.",
+    "needAccount": "Need an account? Register",
+    "haveAccount": "Already have an account? Log in",
+    "authError": "Could not authenticate. Check your details and try again."
+  },
+  "language": {
+    "label": "Language"
+  },
+  "common": {
+    "loading": "Loading...",
+    "discoverNow": "Discover now →"
+  },
+  "detail": {
+    "loginToSave": "Please log in to save experiences.",
+    "loginToPlan": "Please log in to plan a trip.",
+    "addedToTrip": "Added to your trip.",
+    "loginToBook": "Please log in to book this experience.",
+    "bookingSubmitted": "Booking request submitted! Check My Bookings for status.",
+    "bookingError": "Could not create booking. Check the form and try again.",
+    "by": "by {{name}}",
+    "saved": "♥ Saved",
+    "notSaved": "♡ Save",
+    "inTrip": "✓ In your trip",
+    "addToTrip": "+ Add to Trip",
+    "duration": "Duration:",
+    "minutes": "minutes",
+    "maxParticipants": "Max participants:",
+    "price": "Price:",
+    "perPerson": "per person",
+    "location": "Location:",
+    "reviews": "Reviews",
+    "bookThisExperience": "Book this experience",
+    "dateTime": "Date & time",
+    "participants": "Participants",
+    "total": "Total:",
+    "requestBooking": "Request booking"
+  },
+  "bookings": {
+    "title": "My Bookings",
+    "experience": "Experience",
+    "date": "Date",
+    "participants": "Participants",
+    "total": "Total",
+    "status": "Status",
+    "empty": "You haven't booked any experiences yet."
+  },
+  "saved": {
+    "title": "Saved Food Spots",
+    "subtitle": "Your favourite places — save spots while browsing, then build them into an itinerary.",
+    "empty": "No saved spots yet. Tap the heart on any food experience.",
+    "remove": "Remove"
+  },
+  "trip": {
+    "title": "Plan My Trip",
+    "subtitle": "Your foodie itinerary — add stops from any experience page, then set a date for each.",
+    "empty": "No trip stops yet. Add an experience to your trip from its page.",
+    "date": "Date",
+    "remove": "Remove"
+  },
+  "vendor": {
+    "title": "Vendor Dashboard",
+    "pendingApproval": "Your vendor account is pending admin approval. You can still create listings below — they just won't appear in public search results until an admin approves your account.",
+    "listNew": "List a new experience",
+    "titleLabel": "Title",
+    "description": "Description",
+    "category": "Category",
+    "priceLabel": "Price (per person)",
+    "durationLabel": "Duration (minutes)",
+    "maxParticipantsLabel": "Max participants",
+    "address": "Address",
+    "findCoordinates": "Find coordinates from address",
+    "lookingUp": "Looking up...",
+    "coordinatesFound": "Coordinates found.",
+    "coordinatesLabel": "Coordinates: {{lat}}, {{lng}}",
+    "photo": "Photo",
+    "publish": "Publish experience",
+    "yourListings": "Your listed experiences",
+    "enterAddressFirst": "Enter an address first.",
+    "addressNotFound": "Couldn't find that address. Try adding more detail (e.g. street + postal code).",
+    "geocodeFailed": "Geocoding lookup failed. You can leave coordinates blank and add them later.",
+    "experienceCreated": "Experience created.",
+    "saveFailed": "Could not save. Make sure you have a Vendor profile set up first."
+  },
+  "review": {
+    "empty": "No reviews yet — be the first!",
+    "by": "by {{name}}"
+  },
+  "roleBlocked": {
+    "title": "Not available for your account",
+    "message": "This page is only available to {{roles}} accounts. You're logged in as a {{role}} account.",
+    "loginPrompt": "Please log in to view this page."
+  },
+  "bookingStatus": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  }
+}

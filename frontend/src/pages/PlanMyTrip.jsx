@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 
 export default function PlanMyTrip() {
+  const { t } = useTranslation();
   const [stops, setStops] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,13 +30,13 @@ export default function PlanMyTrip() {
 
   return (
     <div>
-      <h1>Plan My Trip</h1>
-      <p className="muted">Your foodie itinerary — add stops from any experience page, then set a date for each.</p>
+      <h1>{t("trip.title")}</h1>
+      <p className="muted">{t("trip.subtitle")}</p>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p>{t("common.loading")}</p>}
 
       {!loading && stops.length === 0 && (
-        <p>No trip stops yet. Add an experience to your trip from its page. <Link to="/">Discover now →</Link></p>
+        <p>{t("trip.empty")} <Link to="/">{t("common.discoverNow")}</Link></p>
       )}
 
       <ul className="itinerary-list">
@@ -49,7 +51,7 @@ export default function PlanMyTrip() {
             </div>
             <div className="itinerary-stop-actions">
               <label>
-                Date
+                {t("trip.date")}
                 <input
                   type="date"
                   value={stop.planned_date || ""}
@@ -57,7 +59,7 @@ export default function PlanMyTrip() {
                 />
               </label>
               <button type="button" className="link-button" onClick={() => handleRemove(stop.id)}>
-                Remove
+                {t("trip.remove")}
               </button>
             </div>
           </li>

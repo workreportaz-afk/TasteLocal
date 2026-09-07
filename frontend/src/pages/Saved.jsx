@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 
 export default function Saved() {
+  const { t } = useTranslation();
   const [saved, setSaved] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,13 +25,13 @@ export default function Saved() {
 
   return (
     <div>
-      <h1>Saved Food Spots</h1>
-      <p className="muted">Your favourite places — save spots while browsing, then build them into an itinerary.</p>
+      <h1>{t("saved.title")}</h1>
+      <p className="muted">{t("saved.subtitle")}</p>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p>{t("common.loading")}</p>}
 
       {!loading && saved.length === 0 && (
-        <p>No saved spots yet. Tap the heart on any food experience. <Link to="/">Discover now →</Link></p>
+        <p>{t("saved.empty")} <Link to="/">{t("common.discoverNow")}</Link></p>
       )}
 
       <div className="experience-grid">
@@ -46,7 +48,7 @@ export default function Saved() {
               <div className="experience-card-footer">
                 <span>${s.experience_detail.price}</span>
                 <button type="button" className="link-button" onClick={() => handleRemove(s.id)}>
-                  Remove
+                  {t("saved.remove")}
                 </button>
               </div>
             </div>

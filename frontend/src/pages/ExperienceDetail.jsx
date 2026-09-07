@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 import ReviewList from "../components/ReviewList.jsx";
 import LocationMap from "../components/LocationMap.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function ExperienceDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { isAuthenticated } = useAuth();
   const [experience, setExperience] = useState(null);
@@ -36,7 +38,7 @@ export default function ExperienceDetail() {
 
   async function handleToggleSave() {
     if (!isAuthenticated) {
-      setActionMessage("Please log in to save experiences.");
+      setActionMessage(t("detail.loginToSave"));
       return;
     }
     if (savedId) {
@@ -50,20 +52,20 @@ export default function ExperienceDetail() {
 
   async function handleAddToTrip() {
     if (!isAuthenticated) {
-      setActionMessage("Please log in to plan a trip.");
+      setActionMessage(t("detail.loginToPlan"));
       return;
     }
     if (inTrip) return;
     await client.post("/itinerary/", { experience: id });
     setInTrip(true);
-    setActionMessage("Added to your trip.");
+    setActionMessage(t("detail.addedToTrip"));
   }
 
   async function handleBooking(e) {
     e.preventDefault();
     setMessage("");
     if (!localStorage.getItem("access_token")) {
-      setMessage("Please log in to book this experience.");
+      setMessage(t("detail.loginToBook"));
       return;
     }
     try {
@@ -72,36 +74,36 @@ export default function ExperienceDetail() {
         booking_date: bookingDate,
         number_of_participants: participants,
       });
-      setMessage("Booking request submitted! Check My Bookings for status.");
+      setMessage(t("detail.bookingSubmitted"));
     } catch (err) {
-      setMessage(err.response?.data?.detail || "Could not create booking. Check the form and try again.");
+      setMessage(err.response?.data?.detail || t("detail.bookingError"));
     }
   }
 
-  if (!experience) return <p>Loading...</p>;
+  if (!experience) return <p>{t("common.loading")}</p>;
 
   return (
     <div className="detail-layout">
       <div>
         {experience.image && <img src={experience.image} alt={experience.title} className="detail-image" />}
         <h1>{experience.title}</h1>
-        <p className="muted">by {experience.vendor?.business_name}</p>
+        <p className="muted">{t("detail.by", { name: experience.vendor?.business_name })}</p>
 
         <div className="detail-actions">
           <button type="button" onClick={handleToggleSave} className={savedId ? "active" : ""}>
-            {savedId ? "♥ Saved" : "♡ Save"}
+            {savedId ? t("detail.saved") : t("detail.notSaved")}
           </button>
           <button type="button" onClick={handleAddToTrip} disabled={inTrip}>
-            {inTrip ? "✓ In your trip" : "+ Add to Trip"}
+            {inTrip ? t("detail.inTrip") : t("detail.addToTrip")}
           </button>
         </div>
         {actionMessage && <p className="message">{actionMessage}</p>}
 
         <p>{experience.description}</p>
-        <p><strong>Duration:</strong> {experience.duration_minutes} minutes</p>
-        <p><strong>Max participants:</strong> {experience.max_participants}</p>
-        <p><strong>Price:</strong> ${experience.price} per person</p>
-        {experience.address && <p><strong>Location:</strong> {experience.address}</p>}
+        <p><strong>{t("detail.duration")}</strong> {experience.duration_minutes} {t("detail.minutes")}</p>
+        <p><strong>{t("detail.maxParticipants")}</strong> {experience.max_participants}</p>
+        <p><strong>{t("detail.price")}</strong> ${experience.price} {t("detail.perPerson")}</p>
+        {experience.address && <p><strong>{t("detail.location")}</strong> {experience.address}</p>}
 
         <LocationMap
           latitude={experience.latitude}
@@ -109,14 +111,14 @@ export default function ExperienceDetail() {
           label={experience.title}
         />
 
-        <h2>Reviews {experience.average_rating ? `(★ ${experience.average_rating})` : ""}</h2>
+        <h2>{t("detail.reviews")} {experience.average_rating ? `(★ ${experience.average_rating})` : ""}</h2>
         <ReviewList reviews={experience.reviews} />
       </div>
 
       <form onSubmit={handleBooking} className="booking-form">
-        <h2>Book this experience</h2>
+        <h2>{t("detail.bookThisExperience")}</h2>
         <label>
-          Date &amp; time
+          {t("detail.dateTime")}
           <input
             type="datetime-local"
             value={bookingDate}
@@ -125,7 +127,7 @@ export default function ExperienceDetail() {
           />
         </label>
         <label>
-          Participants
+          {t("detail.participants")}
           <input
             type="number"
             min="1"
@@ -134,8 +136,8 @@ export default function ExperienceDetail() {
             onChange={(e) => setParticipants(Number(e.target.value))}
           />
         </label>
-        <p>Total: ${(experience.price * participants).toFixed(2)}</p>
-        <button type="submit">Request booking</button>
+        <p>{t("detail.total")} ${(experience.price * participants).toFixed(2)}</p>
+        <button type="submit">{t("detail.requestBooking")}</button>
         {message && <p className="message">{message}</p>}
       </form>
     </div>

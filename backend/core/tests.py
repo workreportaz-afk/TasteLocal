@@ -1,11 +1,13 @@
 from decimal import Decimal
+from unittest.mock import patch
 
+import requests
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from core.models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop
+from core.models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop, FoodExperienceTranslation
 
 
 class VendorAndExperienceModelTests(APITestCase):
@@ -292,3 +294,52 @@ class RoleAndVendorRegistrationTests(APITestCase):
         self.client.force_authenticate(admin_user)
         me = self.client.get("/api/auth/me/")
         self.assertEqual(me.data["role"], "admin")
+
+
+class TranslationCachingTests(APITestCase):
+    def setUp(self):
+        vendor_user = User.objects.create_user(username="translatevendor", password="pass12345")
+        vendor = Vendor.objects.create(user=vendor_user, business_name="Translate Vendor", is_approved=True)
+        self.experience = FoodExperience.objects.create(
+            vendor=vendor, title="Test Dish", description="A tasty test description.",
+            category=FoodExperience.Category.TASTING, price=Decimal("10.00"),
+        )
+
+    def test_no_lang_param_returns_english(self):
+        response = self.client.get(f"/api/experiences/{self.experience.id}/")
+        self.assertEqual(response.data["title"], "Test Dish")
+
+    @patch("core.translation.requests.get")
+    def test_translation_is_cached_after_first_request(self, mock_get):
+        mock_response = mock_get.return_value
+        mock_response.raise_for_status = lambda: None
+        mock_response.json.return_value = {"responseData": {"translatedText": "测试菜肴"}}
+
+        # First call: cache miss -- should call the (mocked) API for both
+        # title and description, then persist a FoodExperienceTranslation row.
+        response = self.client.get(f"/api/experiences/{self.experience.id}/?lang=zh")
+        self.assertEqual(response.data["title"], "测试菜肴")
+        self.assertEqual(mock_get.call_count, 2)
+        self.assertEqual(FoodExperienceTranslation.objects.count(), 1)
+
+        # Second call: cache hit -- must NOT call the API again.
+        response = self.client.get(f"/api/experiences/{self.experience.id}/?lang=zh")
+        self.assertEqual(response.data["title"], "测试菜肴")
+        self.assertEqual(mock_get.call_count, 2)
+
+    @patch("core.translation.requests.get")
+    def test_falls_back_to_english_when_translation_api_is_down(self, mock_get):
+        mock_get.side_effect = requests.exceptions.ConnectionError("network down")
+        response = self.client.get(f"/api/experiences/{self.experience.id}/?lang=zh")
+        self.assertEqual(response.data["title"], "Test Dish")
+        self.assertEqual(FoodExperienceTranslation.objects.count(), 0)
+
+    @patch("core.translation.requests.get")
+    def test_list_endpoint_also_translates_title(self, mock_get):
+        mock_response = mock_get.return_value
+        mock_response.raise_for_status = lambda: None
+        mock_response.json.return_value = {"responseData": {"translatedText": "测试菜肴"}}
+
+        response = self.client.get("/api/experiences/?lang=zh")
+        result = next(r for r in response.data["results"] if r["id"] == self.experience.id)
+        self.assertEqual(result["title"], "测试菜肴")

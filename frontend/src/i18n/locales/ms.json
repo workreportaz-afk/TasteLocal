@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "explore": "Terokai",
+    "saved": "Disimpan",
+    "planTrip": "Rancang Perjalanan",
+    "myBookings": "Tempahan Saya",
+    "vendorDashboard": "Papan Pemuka Vendor",
+    "adminPanel": "Panel Admin",
+    "login": "Log Masuk",
+    "logout": "Log Keluar",
+    "hi": "Hai, {{name}} ({{role}})"
+  },
+  "home": {
+    "title": "Temui pengalaman makanan tempatan yang autentik",
+    "subtitle": "Lawatan makanan jalanan, kelas memasak, dan sesi merasa — tempah terus dengan vendor tempatan.",
+    "searchPlaceholder": "Cari pengalaman atau vendor...",
+    "allCategories": "Semua kategori",
+    "nearMe": "📍 Berhampiran",
+    "nearMeOn": "📍 Berhampiran (aktif)",
+    "locating": "Mencari lokasi...",
+    "loading": "Memuatkan pengalaman...",
+    "noResults": "Tiada pengalaman sepadan dengan carian anda.",
+    "loadError": "Tidak dapat memuatkan pengalaman. Adakah pelayan Django sedang berjalan?",
+    "locationUnsupported": "Pelayar anda tidak menyokong lokasi — cuba cari mengikut nama sebaliknya.",
+    "locationDenied": "Tidak dapat mendapatkan lokasi anda — sila semak kebenaran lokasi pelayar anda.",
+    "distanceAway": "{{distance}} km jauhnya",
+    "noReviewsYet": "Belum ada ulasan"
+  },
+  "category": {
+    "street_food": "Lawatan Makanan Jalanan",
+    "fine_dining": "Makan Mewah",
+    "cooking_class": "Kelas Memasak",
+    "market_tour": "Lawatan Pasar",
+    "tasting": "Sesi Merasa",
+    "other": "Lain-lain"
+  },
+  "login": {
+    "loginTitle": "Log Masuk",
+    "registerTitle": "Cipta Akaun",
+    "username": "Nama pengguna",
+    "email": "E-mel",
+    "accountType": "Jenis akaun",
+    "tourist": "Pelancong — terokai & tempah pengalaman makanan",
+    "vendor": "Vendor — senaraikan perniagaan makanan saya",
+    "businessName": "Nama perniagaan",
+    "password": "Kata laluan",
+    "loginButton": "Log Masuk",
+    "registerButton": "Daftar",
+    "vendorApprovalNote": "Akaun vendor memerlukan kelulusan admin sebelum penyenaraian dipaparkan secara umum — anda masih boleh menyediakan penyenaraian serta-merta, cuma ia tidak akan kelihatan kepada pelancong sehingga diluluskan.",
+    "needAccount": "Belum ada akaun? Daftar",
+    "haveAccount": "Sudah ada akaun? Log masuk",
+    "authError": "Tidak dapat mengesahkan. Semak butiran anda dan cuba lagi."
+  },
+  "language": {
+    "label": "Bahasa"
+  },
+  "common": {
+    "loading": "Memuatkan...",
+    "discoverNow": "Terokai sekarang →"
+  },
+  "detail": {
+    "loginToSave": "Sila log masuk untuk menyimpan pengalaman.",
+    "loginToPlan": "Sila log masuk untuk merancang perjalanan.",
+    "addedToTrip": "Ditambah ke perjalanan anda.",
+    "loginToBook": "Sila log masuk untuk menempah pengalaman ini.",
+    "bookingSubmitted": "Permintaan tempahan telah dihantar! Semak status di Tempahan Saya.",
+    "bookingError": "Tidak dapat membuat tempahan. Semak borang dan cuba lagi.",
+    "by": "oleh {{name}}",
+    "saved": "♥ Disimpan",
+    "notSaved": "♡ Simpan",
+    "inTrip": "✓ Dalam perjalanan anda",
+    "addToTrip": "+ Tambah ke Perjalanan",
+    "duration": "Tempoh:",
+    "minutes": "minit",
+    "maxParticipants": "Peserta maksimum:",
+    "price": "Harga:",
+    "perPerson": "setiap orang",
+    "location": "Lokasi:",
+    "reviews": "Ulasan",
+    "bookThisExperience": "Tempah pengalaman ini",
+    "dateTime": "Tarikh & masa",
+    "participants": "Peserta",
+    "total": "Jumlah:",
+    "requestBooking": "Hantar permintaan tempahan"
+  },
+  "bookings": {
+    "title": "Tempahan Saya",
+    "experience": "Pengalaman",
+    "date": "Tarikh",
+    "participants": "Peserta",
+    "total": "Jumlah",
+    "status": "Status",
+    "empty": "Anda belum menempah sebarang pengalaman."
+  },
+  "saved": {
+    "title": "Tempat Makanan Disimpan",
+    "subtitle": "Tempat kegemaran anda — simpan semasa melayari, kemudian jadikan sebahagian daripada itinerari.",
+    "empty": "Belum ada tempat disimpan. Ketik hati pada mana-mana pengalaman makanan.",
+    "remove": "Buang"
+  },
+  "trip": {
+    "title": "Rancang Perjalanan Saya",
+    "subtitle": "Itinerari makanan anda — tambah perhentian dari mana-mana halaman pengalaman, kemudian tetapkan tarikh untuk setiap satu.",
+    "empty": "Belum ada perhentian perjalanan. Tambah pengalaman ke perjalanan anda dari halamannya.",
+    "date": "Tarikh",
+    "remove": "Buang"
+  },
+  "vendor": {
+    "title": "Papan Pemuka Vendor",
+    "pendingApproval": "Akaun vendor anda sedang menunggu kelulusan admin. Anda masih boleh membuat penyenaraian di bawah — ia hanya tidak akan muncul dalam hasil carian awam sehingga akaun anda diluluskan.",
+    "listNew": "Senaraikan pengalaman baharu",
+    "titleLabel": "Tajuk",
+    "description": "Penerangan",
+    "category": "Kategori",
+    "priceLabel": "Harga (setiap orang)",
+    "durationLabel": "Tempoh (minit)",
+    "maxParticipantsLabel": "Peserta maksimum",
+    "address": "Alamat",
+    "findCoordinates": "Cari koordinat daripada alamat",
+    "lookingUp": "Mencari...",
+    "coordinatesFound": "Koordinat dijumpai.",
+    "coordinatesLabel": "Koordinat: {{lat}}, {{lng}}",
+    "photo": "Foto",
+    "publish": "Terbitkan pengalaman",
+    "yourListings": "Pengalaman yang anda senaraikan",
+    "enterAddressFirst": "Masukkan alamat dahulu.",
+    "addressNotFound": "Alamat tidak dijumpai. Cuba tambah lebih perincian (contohnya nama jalan + poskod).",
+    "geocodeFailed": "Carian koordinat gagal. Anda boleh biarkan koordinat kosong dan tambah kemudian.",
+    "experienceCreated": "Pengalaman berjaya dicipta.",
+    "saveFailed": "Tidak dapat menyimpan. Pastikan anda telah menyediakan profil Vendor."
+  },
+  "review": {
+    "empty": "Belum ada ulasan — jadilah yang pertama!",
+    "by": "oleh {{name}}"
+  },
+  "roleBlocked": {
+    "title": "Tidak tersedia untuk akaun anda",
+    "message": "Halaman ini hanya tersedia untuk akaun {{roles}}. Anda log masuk sebagai akaun {{role}}.",
+    "loginPrompt": "Sila log masuk untuk melihat halaman ini."
+  },
+  "bookingStatus": {
+    "pending": "Menunggu",
+    "confirmed": "Disahkan",
+    "cancelled": "Dibatalkan",
+    "completed": "Selesai"
+  }
+}

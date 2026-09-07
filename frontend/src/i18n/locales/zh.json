@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "explore": "探索",
+    "saved": "收藏",
+    "planTrip": "行程规划",
+    "myBookings": "我的预订",
+    "vendorDashboard": "商家后台",
+    "adminPanel": "管理面板",
+    "login": "登录",
+    "logout": "退出登录",
+    "hi": "您好，{{name}}（{{role}}）"
+  },
+  "home": {
+    "title": "发现地道本地美食体验",
+    "subtitle": "街头美食之旅、烹饪课程和品尝活动 — 直接向本地商家预订。",
+    "searchPlaceholder": "搜索体验或商家...",
+    "allCategories": "所有类别",
+    "nearMe": "📍 附近",
+    "nearMeOn": "📍 附近（已开启）",
+    "locating": "定位中...",
+    "loading": "正在加载体验...",
+    "noResults": "没有符合您搜索条件的体验。",
+    "loadError": "无法加载体验，请确认 Django 服务器是否正在运行。",
+    "locationUnsupported": "您的浏览器不支持定位功能 — 请尝试按名称搜索。",
+    "locationDenied": "无法获取您的位置 — 请检查浏览器的定位权限。",
+    "distanceAway": "距离 {{distance}} 公里",
+    "noReviewsYet": "暂无评价"
+  },
+  "category": {
+    "street_food": "街头美食之旅",
+    "fine_dining": "高级餐饮",
+    "cooking_class": "烹饪课程",
+    "market_tour": "市场之旅",
+    "tasting": "品尝活动",
+    "other": "其他"
+  },
+  "login": {
+    "loginTitle": "登录",
+    "registerTitle": "创建账户",
+    "username": "用户名",
+    "email": "电子邮箱",
+    "accountType": "账户类型",
+    "tourist": "游客 — 探索并预订美食体验",
+    "vendor": "商家 — 上架我的餐饮业务",
+    "businessName": "商家名称",
+    "password": "密码",
+    "loginButton": "登录",
+    "registerButton": "注册",
+    "vendorApprovalNote": "商家账户需要管理员审核后，商品才会公开显示 — 您可以立即创建商品，只是在审核通过前游客暂时无法看到。",
+    "needAccount": "还没有账户？立即注册",
+    "haveAccount": "已有账户？立即登录",
+    "authError": "登录失败，请检查您的登录信息后重试。"
+  },
+  "language": {
+    "label": "语言"
+  },
+  "common": {
+    "loading": "加载中...",
+    "discoverNow": "立即探索 →"
+  },
+  "detail": {
+    "loginToSave": "请登录以收藏体验。",
+    "loginToPlan": "请登录以规划行程。",
+    "addedToTrip": "已加入您的行程。",
+    "loginToBook": "请登录以预订此体验。",
+    "bookingSubmitted": "预订请求已提交！请在「我的预订」中查看状态。",
+    "bookingError": "无法创建预订，请检查表单后重试。",
+    "by": "由 {{name}} 提供",
+    "saved": "♥ 已收藏",
+    "notSaved": "♡ 收藏",
+    "inTrip": "✓ 已加入行程",
+    "addToTrip": "+ 加入行程",
+    "duration": "时长：",
+    "minutes": "分钟",
+    "maxParticipants": "最多人数：",
+    "price": "价格：",
+    "perPerson": "每人",
+    "location": "地点：",
+    "reviews": "评价",
+    "bookThisExperience": "预订此体验",
+    "dateTime": "日期与时间",
+    "participants": "人数",
+    "total": "总计：",
+    "requestBooking": "提交预订请求"
+  },
+  "bookings": {
+    "title": "我的预订",
+    "experience": "体验",
+    "date": "日期",
+    "participants": "人数",
+    "total": "总计",
+    "status": "状态",
+    "empty": "您还没有预订任何体验。"
+  },
+  "saved": {
+    "title": "收藏的美食地点",
+    "subtitle": "您收藏的地方 — 浏览时收藏，之后可加入行程规划。",
+    "empty": "暂无收藏。点击任意美食体验上的爱心即可收藏。",
+    "remove": "移除"
+  },
+  "trip": {
+    "title": "行程规划",
+    "subtitle": "您的美食行程 — 从任意体验页面添加地点，并为每个地点设定日期。",
+    "empty": "行程中暂无地点。请从体验页面添加。",
+    "date": "日期",
+    "remove": "移除"
+  },
+  "vendor": {
+    "title": "商家后台",
+    "pendingApproval": "您的商家账户正在等待管理员审核。您仍可在下方创建商品 — 只是在审核通过前，它们不会出现在公开搜索结果中。",
+    "listNew": "发布新体验",
+    "titleLabel": "标题",
+    "description": "描述",
+    "category": "类别",
+    "priceLabel": "价格（每人）",
+    "durationLabel": "时长（分钟）",
+    "maxParticipantsLabel": "最多人数",
+    "address": "地址",
+    "findCoordinates": "根据地址查找坐标",
+    "lookingUp": "查找中...",
+    "coordinatesFound": "已找到坐标。",
+    "coordinatesLabel": "坐标：{{lat}}, {{lng}}",
+    "photo": "照片",
+    "publish": "发布体验",
+    "yourListings": "您发布的体验",
+    "enterAddressFirst": "请先输入地址。",
+    "addressNotFound": "找不到该地址，请尝试提供更多详情（例如街道和邮编）。",
+    "geocodeFailed": "坐标查找失败，您可以先留空坐标，稍后再补充。",
+    "experienceCreated": "体验已创建。",
+    "saveFailed": "保存失败，请确认您已设置商家资料。"
+  },
+  "review": {
+    "empty": "暂无评价 — 成为第一个评价的人吧！",
+    "by": "由 {{name}} 撰写"
+  },
+  "roleBlocked": {
+    "title": "此账户无法使用该页面",
+    "message": "此页面仅供 {{roles}} 账户使用。您当前登录的是 {{role}} 账户。",
+    "loginPrompt": "请登录以查看此页面。"
+  },
+  "bookingStatus": {
+    "pending": "待处理",
+    "confirmed": "已确认",
+    "cancelled": "已取消",
+    "completed": "已完成"
+  }
+}

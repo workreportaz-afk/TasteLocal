@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 import ExperienceCard from "../components/ExperienceCard.jsx";
 
-const CATEGORIES = [
-  ["", "All categories"],
-  ["street_food", "Street Food Tour"],
-  ["fine_dining", "Fine Dining"],
-  ["cooking_class", "Cooking Class"],
-  ["market_tour", "Market Tour"],
-  ["tasting", "Tasting Session"],
-];
+const CATEGORY_VALUES = ["", "street_food", "fine_dining", "cooking_class", "market_tour", "tasting"];
 
 export default function Home() {
+  const { t } = useTranslation();
   const [experiences, setExperiences] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -34,9 +29,9 @@ export default function Home() {
     client
       .get("/experiences/", { params })
       .then(({ data }) => setExperiences(data.results ?? data))
-      .catch(() => setError("Could not load experiences. Is the Django server running?"))
+      .catch(() => setError(t("home.loadError")))
       .finally(() => setLoading(false));
-  }, [search, category, nearMe]);
+  }, [search, category, nearMe, t]);
 
   function handleNearMe() {
     if (nearMe) {
@@ -44,7 +39,7 @@ export default function Home() {
       return;
     }
     if (!navigator.geolocation) {
-      setLocateError("Your browser doesn't support location — try searching by name instead.");
+      setLocateError(t("home.locationUnsupported"));
       return;
     }
     setLocating(true);
@@ -55,7 +50,7 @@ export default function Home() {
         setLocating(false);
       },
       () => {
-        setLocateError("Couldn't get your location — check your browser's location permission.");
+        setLocateError(t("home.locationDenied"));
         setLocating(false);
       }
     );
@@ -64,36 +59,38 @@ export default function Home() {
   return (
     <div>
       <section className="hero">
-        <h1>Discover authentic local food experiences</h1>
-        <p>Street food tours, cooking classes, and tastings — booked directly with local vendors.</p>
+        <h1>{t("home.title")}</h1>
+        <p>{t("home.subtitle")}</p>
       </section>
 
       <div className="filters">
         <input
           type="search"
-          placeholder="Search experiences or vendors..."
+          placeholder={t("home.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          {CATEGORIES.map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
+          {CATEGORY_VALUES.map((value) => (
+            <option key={value} value={value}>
+              {value === "" ? t("home.allCategories") : t(`category.${value}`)}
+            </option>
           ))}
         </select>
         <button type="button" onClick={handleNearMe} className={nearMe ? "active" : ""}>
-          {locating ? "Locating..." : nearMe ? "📍 Near me (on)" : "📍 Near me"}
+          {locating ? t("home.locating") : nearMe ? t("home.nearMeOn") : t("home.nearMe")}
         </button>
       </div>
       {locateError && <p className="error">{locateError}</p>}
 
-      {loading && <p>Loading experiences...</p>}
+      {loading && <p>{t("home.loading")}</p>}
       {error && <p className="error">{error}</p>}
 
       <div className="experience-grid">
         {experiences.map((exp) => (
           <ExperienceCard key={exp.id} experience={exp} />
         ))}
-        {!loading && !error && experiences.length === 0 && <p>No experiences match your search.</p>}
+        {!loading && !error && experiences.length === 0 && <p>{t("home.noResults")}</p>}
       </div>
     </div>
   );

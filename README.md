@@ -111,6 +111,8 @@ git push
 | Maps | Free OpenStreetMap + Leaflet map on each experience detail page, no API key |
 | Image uploads | Vendors can attach a photo when publishing a listing (multipart upload, Pillow-backed) |
 | Frontend | Home (browse/search/filter/near-me), Experience detail (booking, save, add-to-trip, map, reviews), My Bookings, Saved Spots, Plan My Trip, Login/Register, Vendor Dashboard (create listings with image + geocoding) |
+| Internationalization | English, Simplified Chinese, and Bahasa Melayu via `react-i18next`, with a language switcher in the navbar. Choice persists across visits (localStorage). All pages fully translated: navbar, homepage, experience detail, bookings, saved spots, plan my trip, vendor dashboard, login/register, and role-restricted messaging — see `src/i18n/locales/` |
+| Content translation | Experience titles/descriptions are machine-translated on first view per language via the free MyMemory API (no key needed), then cached in `FoodExperienceTranslation` so each experience is only translated once, ever, per language — see `core/translation.py`. Vendor/business names stay in English intentionally (proper nouns). Falls back silently to English if the translation API is unreachable |
 | Tests | `core/tests.py` — model logic, API auth enforcement, geolocation radius filtering, saved/itinerary CRUD, vendor approval gating (26 tests, all passing as of last run) |
 | Infrastructure | Docker (dev + production-style compose with gunicorn/nginx), GitHub Actions CI (runs tests against real MySQL, builds both images) |
 | Demo data | `seed_demo_data` management command — real Singapore Michelin Bib Gourmand hawker stalls, mock tourists, completed bookings, reviews |

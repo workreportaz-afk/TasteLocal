@@ -3,6 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop
+from .translation import get_or_create_translation
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -131,6 +132,16 @@ class FoodExperienceListSerializer(serializers.ModelSerializer):
             return round(annotated, 1)
         return obj.average_rating
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        lang = request.query_params.get("lang") if request else None
+        if lang and lang != "en":
+            translation = get_or_create_translation(instance, lang)
+            if translation:
+                data["title"] = translation.title
+        return data
+
 
 class FoodExperienceDetailSerializer(serializers.ModelSerializer):
     vendor = VendorSerializer(read_only=True)
@@ -151,6 +162,17 @@ class FoodExperienceDetailSerializer(serializers.ModelSerializer):
         if annotated is not None:
             return round(annotated, 1)
         return obj.average_rating
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        lang = request.query_params.get("lang") if request else None
+        if lang and lang != "en":
+            translation = get_or_create_translation(instance, lang)
+            if translation:
+                data["title"] = translation.title
+                data["description"] = translation.description
+        return data
 
 
 class FoodExperienceWriteSerializer(serializers.ModelSerializer):

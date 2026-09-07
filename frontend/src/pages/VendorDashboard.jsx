@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -9,6 +10,7 @@ const emptyForm = {
 };
 
 export default function VendorDashboard() {
+  const { t } = useTranslation();
   const { vendorId, vendorIsApproved } = useAuth();
   const [experiences, setExperiences] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -46,7 +48,7 @@ export default function VendorDashboard() {
   // one-off "look up this address" click.
   async function handleGeocode() {
     if (!form.address) {
-      setMessage("Enter an address first.");
+      setMessage(t("vendor.enterAddressFirst"));
       return;
     }
     setGeocoding(true);
@@ -61,13 +63,13 @@ export default function VendorDashboard() {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
       const results = await res.json();
       if (results.length === 0) {
-        setMessage("Couldn't find that address. Try adding more detail (e.g. street + postal code).");
+        setMessage(t("vendor.addressNotFound"));
         return;
       }
       setForm((f) => ({ ...f, latitude: results[0].lat, longitude: results[0].lon }));
-      setMessage("Coordinates found.");
+      setMessage(t("vendor.coordinatesFound"));
     } catch {
-      setMessage("Geocoding lookup failed. You can leave coordinates blank and add them later.");
+      setMessage(t("vendor.geocodeFailed"));
     } finally {
       setGeocoding(false);
     }
@@ -94,64 +96,60 @@ export default function VendorDashboard() {
       setForm(emptyForm);
       setImageFile(null);
       setImagePreview(null);
-      setMessage("Experience created.");
+      setMessage(t("vendor.experienceCreated"));
       loadMine();
     } catch (err) {
-      setMessage("Could not save. Make sure you have a Vendor profile set up first.");
+      setMessage(t("vendor.saveFailed"));
     }
   }
 
   return (
     <div className="vendor-dashboard">
-      <h1>Vendor Dashboard</h1>
+      <h1>{t("vendor.title")}</h1>
 
       {vendorIsApproved === false && (
-        <p className="approval-banner">
-          Your vendor account is pending admin approval. You can still create
-          listings below — they just won't appear in public search results
-          until an admin approves your account.
-        </p>
+        <p className="approval-banner">{t("vendor.pendingApproval")}</p>
       )}
 
       <form onSubmit={handleSubmit} className="experience-form">
-        <h2>List a new experience</h2>
-        <label>Title <input value={form.title} onChange={update("title")} required /></label>
-        <label>Description <textarea value={form.description} onChange={update("description")} required /></label>
+        <h2>{t("vendor.listNew")}</h2>
+        <label>{t("vendor.titleLabel")} <input value={form.title} onChange={update("title")} required /></label>
+        <label>{t("vendor.description")} <textarea value={form.description} onChange={update("description")} required /></label>
         <label>
-          Category
+          {t("vendor.category")}
           <select value={form.category} onChange={update("category")}>
-            <option value="street_food">Street Food Tour</option>
-            <option value="fine_dining">Fine Dining</option>
-            <option value="cooking_class">Cooking Class</option>
-            <option value="market_tour">Market Tour</option>
-            <option value="tasting">Tasting Session</option>
+            <option value="street_food">{t("category.street_food")}</option>
+            <option value="fine_dining">{t("category.fine_dining")}</option>
+            <option value="cooking_class">{t("category.cooking_class")}</option>
+            <option value="market_tour">{t("category.market_tour")}</option>
+            <option value="tasting">{t("category.tasting")}</option>
           </select>
         </label>
-        <label>Price (per person) <input type="number" step="0.01" value={form.price} onChange={update("price")} required /></label>
-        <label>Duration (minutes) <input type="number" value={form.duration_minutes} onChange={update("duration_minutes")} /></label>
-        <label>Max participants <input type="number" value={form.max_participants} onChange={update("max_participants")} /></label>
-        <label>Address <input value={form.address} onChange={update("address")} /></label>
+        <label>{t("vendor.priceLabel")} <input type="number" step="0.01" value={form.price} onChange={update("price")} required /></label>
+        <label>{t("vendor.durationLabel")} <input type="number" value={form.duration_minutes} onChange={update("duration_minutes")} /></label>
+        <label>{t("vendor.maxParticipantsLabel")} <input type="number" value={form.max_participants} onChange={update("max_participants")} /></label>
+        <label>{t("vendor.address")} <input value={form.address} onChange={update("address")} /></label>
         <button type="button" onClick={handleGeocode} disabled={geocoding}>
-          {geocoding ? "Looking up..." : "Find coordinates from address"}
+          {geocoding ? t("vendor.lookingUp") : t("vendor.findCoordinates")}
         </button>
         {form.latitude && form.longitude && (
-          <p className="muted">Coordinates: {form.latitude}, {form.longitude}</p>
+          <p className="muted">{t("vendor.coordinatesLabel", { lat: form.latitude, lng: form.longitude })}</p>
         )}
         <label>
-          Photo
+          {t("vendor.photo")}
           <input type="file" accept="image/*" onChange={handleImageChange} />
         </label>
         {imagePreview && <img src={imagePreview} alt="Preview" className="image-preview" />}
-        <button type="submit">Publish experience</button>
+        <button type="submit">{t("vendor.publish")}</button>
         {message && <p className="message">{message}</p>}
       </form>
 
-      <h2>Your listed experiences</h2>
+      <h2>{t("vendor.yourListings")}</h2>
       <ul className="vendor-list">
         {experiences.map((exp) => (
           <li key={exp.id} className="vendor-list-item">
             {exp.image && <img src={exp.image} alt={exp.title} className="vendor-list-thumb" />}
-            <span>{exp.title} — ${exp.price} ({exp.category})</span>
+            <span>{exp.title} — ${exp.price} ({t(`category.${exp.category}`)})</span>
           </li>
         ))}
       </ul>
