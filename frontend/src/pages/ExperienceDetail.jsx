@@ -7,7 +7,7 @@ import LocationMap from "../components/LocationMap.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function ExperienceDetail() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { isAuthenticated } = useAuth();
   const [experience, setExperience] = useState(null);
@@ -20,7 +20,7 @@ export default function ExperienceDetail() {
 
   useEffect(() => {
     client.get(`/experiences/${id}/`).then(({ data }) => setExperience(data));
-  }, [id]);
+  }, [id, i18n.language]);
 
   // Check saved/trip status once logged in -- these are small personal lists,
   // fine to fetch and search client-side rather than adding a dedicated endpoint.

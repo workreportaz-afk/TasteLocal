@@ -91,3 +91,23 @@ body { margin: 0; background: var(--bg); color: var(--dark); }
 .approval-banner { background: #fff7e6; border: 1px solid #f5c96b; color: #7a5c00; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
 .navbar nav a[href^="http"] { color: var(--primary); font-weight: 600; }
 .language-switcher { margin-left: 1rem; padding: 0.3rem 0.5rem; border: 1px solid #ddd; border-radius: 6px; background: white; }
+
+.recommended-section { margin: 2rem 0; }
+.recommended-section h2 { margin-bottom: 0.25rem; }
+
+.trip-planner { max-width: 700px; margin: 0 auto; }
+.chat-window {
+  background: white; border-radius: 10px; padding: 1rem;
+  min-height: 200px; max-height: 400px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.chat-bubble { padding: 0.6rem 0.9rem; border-radius: 12px; max-width: 80%; line-height: 1.4; }
+.chat-bubble-assistant { background: #f3d9dd; align-self: flex-start; }
+.chat-bubble-user { background: var(--primary); color: white; align-self: flex-end; }
+.chat-input-form { display: flex; gap: 0.5rem; }
+.chat-input-form input { flex: 1; padding: 0.6rem; border: 1px solid #ddd; border-radius: 6px; }
+.chat-input-form button { padding: 0.6rem 1.2rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; }
+.chat-input-form button:disabled { opacity: 0.6; cursor: default; }
+.trip-planner-results { margin-top: 1.5rem; }
+.trip-planner-results > button { margin-top: 1rem; padding: 0.6rem 1.2rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; }

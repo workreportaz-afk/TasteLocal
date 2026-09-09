@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import requests
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.utils import timezone
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -298,6 +299,11 @@ class RoleAndVendorRegistrationTests(APITestCase):
 
 class TranslationCachingTests(APITestCase):
     def setUp(self):
+        # The translation circuit breaker lives in Django's cache, which
+        # persists across test methods in the same run -- clear it so one
+        # test's simulated API failure can't silently trip the breaker for
+        # every test that runs after it.
+        cache.clear()
         vendor_user = User.objects.create_user(username="translatevendor", password="pass12345")
         vendor = Vendor.objects.create(user=vendor_user, business_name="Translate Vendor", is_approved=True)
         self.experience = FoodExperience.objects.create(
@@ -343,3 +349,152 @@ class TranslationCachingTests(APITestCase):
         response = self.client.get("/api/experiences/?lang=zh")
         result = next(r for r in response.data["results"] if r["id"] == self.experience.id)
         self.assertEqual(result["title"], "测试菜肴")
+
+    @patch("core.translation.requests.get")
+    def test_circuit_breaker_stops_hammering_a_failing_api(self, mock_get):
+        """
+        Regression test for the real production incident this project hit:
+        MyMemory's free daily quota ran out (HTTP 429), and because
+        failures weren't being remembered, EVERY experience on the homepage
+        retried the API on EVERY page load -- the accumulated latency of
+        many failed sequential calls is what caused the page to hang.
+        This confirms the fix: after the first failure, the breaker trips
+        and no further network calls are made for other experiences,
+        regardless of language or which experience is being translated.
+        """
+        mock_response = mock_get.return_value
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("429 Too Many Requests")
+
+        second_vendor_user = User.objects.create_user(username="secondtranslatevendor", password="pass12345")
+        second_vendor = Vendor.objects.create(
+            user=second_vendor_user, business_name="Second Translate Vendor", is_approved=True
+        )
+        second_experience = FoodExperience.objects.create(
+            vendor=second_vendor, title="Another Dish", description="Another description.",
+            category=FoodExperience.Category.TASTING, price=Decimal("15.00"),
+        )
+
+        # First experience: title translation is attempted first and fails,
+        # tripping the breaker immediately. The description translation
+        # attempt that follows right after (still within the same
+        # get_or_create_translation() call) already sees the tripped
+        # breaker and skips the network -- so only ONE real call happens
+        # per experience, not two. That's the circuit breaker working even
+        # faster than a naive "trip after N failures" design would.
+        self.client.get(f"/api/experiences/{self.experience.id}/?lang=zh")
+        calls_after_first_experience = mock_get.call_count
+        self.assertEqual(calls_after_first_experience, 1)
+
+        # Second, DIFFERENT experience, same request cycle as a fresh page
+        # load would make: the breaker should already be open, so this
+        # must make ZERO additional calls.
+        response = self.client.get(f"/api/experiences/{second_experience.id}/?lang=zh")
+        self.assertEqual(mock_get.call_count, calls_after_first_experience)  # unchanged
+        self.assertEqual(response.data["title"], "Another Dish")  # fell back to English, not stuck/broken
+
+
+class RecommendationsTests(APITestCase):
+    def setUp(self):
+        vendor_user = User.objects.create_user(username="recvendor", password="pass12345")
+        self.vendor = Vendor.objects.create(user=vendor_user, business_name="Rec Vendor", is_approved=True)
+
+        self.street_food_1 = FoodExperience.objects.create(
+            vendor=self.vendor, title="Street Food A", description="x",
+            category=FoodExperience.Category.STREET_FOOD, price=Decimal("10.00"),
+        )
+        self.street_food_2 = FoodExperience.objects.create(
+            vendor=self.vendor, title="Street Food B", description="x",
+            category=FoodExperience.Category.STREET_FOOD, price=Decimal("12.00"),
+        )
+        self.fine_dining = FoodExperience.objects.create(
+            vendor=self.vendor, title="Fancy Dinner", description="x",
+            category=FoodExperience.Category.FINE_DINING, price=Decimal("80.00"),
+        )
+        self.tourist = User.objects.create_user(username="rectourist", password="pass12345")
+
+    def test_requires_authentication(self):
+        response = self.client.get("/api/experiences/recommended/")
+        self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+
+    def test_cold_start_returns_something_for_new_user(self):
+        self.client.force_authenticate(self.tourist)
+        response = self.client.get("/api/experiences/recommended/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+
+    def test_prefers_categories_from_saved_history(self):
+        self.client.force_authenticate(self.tourist)
+        # Tourist saves a street food experience -- recommendations should
+        # then favour the OTHER street food experience over fine dining.
+        self.client.post("/api/saved/", {"experience": self.street_food_1.id})
+
+        response = self.client.get("/api/experiences/recommended/")
+        result_ids = [r["id"] for r in response.data]
+
+        self.assertNotIn(self.street_food_1.id, result_ids)  # already saved, shouldn't recommend it again
+        self.assertIn(self.street_food_2.id, result_ids)
+        # The matching-category experience should rank above fine dining.
+        self.assertLess(result_ids.index(self.street_food_2.id), result_ids.index(self.fine_dining.id))
+
+
+class TripPlannerChatTests(APITestCase):
+    def setUp(self):
+        vendor_user = User.objects.create_user(username="tripplannervendor", password="pass12345")
+        vendor = Vendor.objects.create(user=vendor_user, business_name="Trip Planner Vendor", is_approved=True)
+
+        self.cheap_street_food = FoodExperience.objects.create(
+            vendor=vendor, title="Cheap Eats", description="x",
+            category=FoodExperience.Category.STREET_FOOD, price=Decimal("8.00"),
+            address="123 Chinatown Street, Singapore",
+        )
+        self.pricey_fine_dining = FoodExperience.objects.create(
+            vendor=vendor, title="Expensive Dinner", description="x",
+            category=FoodExperience.Category.FINE_DINING, price=Decimal("120.00"),
+            address="456 Orchard Road, Singapore",
+        )
+        self.tourist = User.objects.create_user(username="chattourist", password="pass12345")
+
+    def test_requires_authentication(self):
+        response = self.client.post("/api/experiences/plan-trip/", {"message": "street food"})
+        self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+
+    def test_empty_message_is_rejected(self):
+        self.client.force_authenticate(self.tourist)
+        response = self.client.post("/api/experiences/plan-trip/", {"message": ""})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_category_keyword_filters_correctly(self):
+        self.client.force_authenticate(self.tourist)
+        response = self.client.post("/api/experiences/plan-trip/", {"message": "I want street food"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result_ids = [e["id"] for e in response.data["experiences"]]
+        self.assertIn(self.cheap_street_food.id, result_ids)
+        self.assertNotIn(self.pricey_fine_dining.id, result_ids)
+
+    def test_budget_keyword_filters_correctly(self):
+        self.client.force_authenticate(self.tourist)
+        response = self.client.post("/api/experiences/plan-trip/", {"message": "something under $20"})
+        result_ids = [e["id"] for e in response.data["experiences"]]
+        self.assertIn(self.cheap_street_food.id, result_ids)
+        self.assertNotIn(self.pricey_fine_dining.id, result_ids)
+
+    def test_area_keyword_filters_correctly(self):
+        self.client.force_authenticate(self.tourist)
+        response = self.client.post("/api/experiences/plan-trip/", {"message": "food near Chinatown"})
+        result_ids = [e["id"] for e in response.data["experiences"]]
+        self.assertIn(self.cheap_street_food.id, result_ids)
+        self.assertNotIn(self.pricey_fine_dining.id, result_ids)
+
+    def test_no_match_returns_helpful_reply(self):
+        self.client.force_authenticate(self.tourist)
+        response = self.client.post("/api/experiences/plan-trip/", {"message": "fine dining under $5"})
+        self.assertEqual(response.data["experiences"], [])
+        self.assertIn("couldn't find", response.data["reply"])
+
+
+class BackendHomePageTests(APITestCase):
+    def test_home_page_loads_and_links_to_frontend_and_admin(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(b"/admin/", response.content)
+        self.assertIn(b"/api/experiences/", response.content)

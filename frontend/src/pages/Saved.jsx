@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 
 export default function Saved() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [saved, setSaved] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,7 +16,7 @@ export default function Saved() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(load, []);
+  useEffect(load, [i18n.language]);
 
   async function handleRemove(savedId) {
     await client.delete(`/saved/${savedId}/`);

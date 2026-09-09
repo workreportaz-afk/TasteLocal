@@ -8,7 +8,8 @@
     "adminPanel": "管理面板",
     "login": "登录",
     "logout": "退出登录",
-    "hi": "您好，{{name}}（{{role}}）"
+    "hi": "您好，{{name}}（{{role}}）",
+    "tripPlannerChat": "AI 行程规划助手"
   },
   "home": {
     "title": "发现地道本地美食体验",
@@ -143,5 +144,20 @@
     "confirmed": "已确认",
     "cancelled": "已取消",
     "completed": "已完成"
+  },
+  "recommended": {
+    "title": "为您推荐",
+    "subtitle": "根据您的收藏和预订个性化推荐。"
+  },
+  "tripPlanner": {
+    "title": "AI 行程规划助手",
+    "disclaimer": "这是一个基于规则的助手，会根据您的讯息匹配类别、地区和预算 — 并非完整的 AI 对话，但能为您找到真实的体验。",
+    "intro": "您好！告诉我您想要什么 — 例如「唐人街附近20元以下的街头美食」— 我会为您推荐一些地点。",
+    "inputPlaceholder": "描述您想要的体验...",
+    "send": "发送",
+    "error": "出现问题，请重试。",
+    "addAllToTrip": "全部加入行程",
+    "addedAll": "已加入您的行程！",
+    "addFailed": "部分项目添加失败 — 请尝试从各自页面单独添加。"
   }
 }

@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 import ExperienceCard from "../components/ExperienceCard.jsx";
+import RecommendedSection from "../components/RecommendedSection.jsx";
 
 const CATEGORY_VALUES = ["", "street_food", "fine_dining", "cooking_class", "market_tour", "tasting"];
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [experiences, setExperiences] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -31,7 +32,18 @@ export default function Home() {
       .then(({ data }) => setExperiences(data.results ?? data))
       .catch(() => setError(t("home.loadError")))
       .finally(() => setLoading(false));
-  }, [search, category, nearMe, t]);
+    // `t` is intentionally excluded here -- it's only used for a static
+    // error message, not a fetch parameter. Including it risks an
+    // effect-refetch loop if react-i18next's `t` reference ever changes
+    // between renders (which is exactly what caused the page to hang on
+    // "Loading experiences..." indefinitely on refresh).
+    // `i18n.language` IS included, deliberately: it's a plain string (not
+    // a function reference, so no reference-instability risk), and the
+    // backend returns translated titles/descriptions based on it -- without
+    // this, switching languages wouldn't re-fetch, and already-loaded
+    // content would stay in whatever language it was first fetched in.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, category, nearMe, i18n.language]);
 
   function handleNearMe() {
     if (nearMe) {
@@ -62,6 +74,8 @@ export default function Home() {
         <h1>{t("home.title")}</h1>
         <p>{t("home.subtitle")}</p>
       </section>
+
+      <RecommendedSection />
 
       <div className="filters">
         <input

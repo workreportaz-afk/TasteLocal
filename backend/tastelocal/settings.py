@@ -126,6 +126,12 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 
+# Used by the backend's root landing page (see core/views.home) to link to
+# the frontend app. In dev this is the Vite dev server; in production this
+# would be your real public domain (nginx serves both from the same origin
+# there, so it isn't as critical, but still useful for a direct link).
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")
+
 # --- Production hardening (no-ops when DEBUG=True for local dev) ---
 if not DEBUG:
     SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=False, cast=bool)

@@ -1,12 +1,17 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Avg, Q
+from django.shortcuts import render
 from rest_framework import viewsets, permissions, generics, filters
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .geo import haversine_km
 from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop
 from .permissions import IsOwnerVendorOrReadOnly, IsBookingOwner
+from .recommendations import get_recommendations_for_user
+from .trip_planner import plan_trip
 from .serializers import (
     RegisterSerializer, UserSerializer, VendorSerializer, FoodExperienceListSerializer,
     FoodExperienceDetailSerializer, FoodExperienceWriteSerializer,
@@ -82,6 +87,33 @@ class FoodExperienceViewSet(viewsets.ModelViewSet):
         if self.action in ("create", "update", "partial_update"):
             return FoodExperienceWriteSerializer
         return FoodExperienceDetailSerializer
+
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
+    def recommended(self, request):
+        """
+        GET /api/experiences/recommended/
+        "Recommended For You" -- content-based ranking from saves/itinerary/
+        bookings history, not an ML model or external AI call. See
+        core/recommendations.py for the full explanation.
+        """
+        recommendations = get_recommendations_for_user(request.user, self.get_queryset())
+        serializer = FoodExperienceListSerializer(recommendations, many=True, context=self.get_serializer_context())
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated], url_path="plan-trip")
+    def plan_trip_chat(self, request):
+        """
+        POST /api/experiences/plan-trip/  body: {"message": "..."}
+        Rule-based trip planning assistant -- see core/trip_planner.py for
+        why this is keyword parsing, not a real LLM.
+        """
+        message = request.data.get("message", "").strip()
+        if not message:
+            return Response({"detail": "message is required"}, status=400)
+
+        reply, matched = plan_trip(message, self.get_queryset())
+        serializer = FoodExperienceListSerializer(matched, many=True, context=self.get_serializer_context())
+        return Response({"reply": reply, "experiences": serializer.data})
 
     def list(self, request, *args, **kwargs):
         near = request.query_params.get("near")
@@ -172,3 +204,16 @@ class ItineraryStopViewSet(viewsets.ModelViewSet):
         return ItineraryStop.objects.select_related("experience", "experience__vendor").filter(
             tourist=self.request.user
         )
+
+
+def home(request):
+    """
+    Simple landing page at the backend's root URL (e.g. http://localhost:8000/),
+    so visiting the API server directly doesn't just 404. Links out to the
+    frontend app, the Django admin, and the API root -- mainly a dev-time
+    convenience since in production nginx would front both apps together.
+    """
+    return render(request, "home.html", {
+        "frontend_url": settings.FRONTEND_URL,
+        "debug": settings.DEBUG,
+    })

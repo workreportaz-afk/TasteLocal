@@ -8,7 +8,8 @@
     "adminPanel": "Panel Admin",
     "login": "Log Masuk",
     "logout": "Log Keluar",
-    "hi": "Hai, {{name}} ({{role}})"
+    "hi": "Hai, {{name}} ({{role}})",
+    "tripPlannerChat": "Perancang Perjalanan AI"
   },
   "home": {
     "title": "Temui pengalaman makanan tempatan yang autentik",
@@ -143,5 +144,20 @@
     "confirmed": "Disahkan",
     "cancelled": "Dibatalkan",
     "completed": "Selesai"
+  },
+  "recommended": {
+    "title": "Disyorkan Untuk Anda",
+    "subtitle": "Diperibadikan daripada kegemaran dan tempahan anda."
+  },
+  "tripPlanner": {
+    "title": "Perancang Perjalanan AI",
+    "disclaimer": "Pembantu berasaskan peraturan yang memadankan mesej anda dengan kategori, kawasan dan bajet — bukan perbualan AI penuh, tetapi ia akan mencari pengalaman sebenar untuk anda.",
+    "intro": "Hai! Beritahu saya apa yang anda cari — contohnya “makanan jalanan berhampiran Chinatown bawah $20” — dan saya akan cadangkan beberapa perhentian.",
+    "inputPlaceholder": "Terangkan apa yang anda cari...",
+    "send": "Hantar",
+    "error": "Sesuatu tidak kena — sila cuba lagi.",
+    "addAllToTrip": "Tambah semua ke perjalanan saya",
+    "addedAll": "Ditambah ke perjalanan anda!",
+    "addFailed": "Sesetengah tidak dapat ditambah — cuba tambah secara individu dari halaman masing-masing."
   }
 }

@@ -3,18 +3,26 @@ Free, on-the-fly machine translation for experience titles/descriptions.
 
 Uses the MyMemory Translation API (https://mymemory.translated.net/) -- no
 API key or signup required for low-volume use (MyMemory's published free
-tier is ~5,000 words/day anonymous, which comfortably covers a coursework
-project's traffic). This is deliberately NOT the unofficial Google Translate
-endpoint some hobby projects scrape (undocumented, can break without notice)
-and NOT a self-hosted LibreTranslate container (a multi-GB ML service --
-more infrastructure than this project's scale needs).
+tier is ~5,000 words/day anonymous). This is deliberately NOT the unofficial
+Google Translate endpoint some hobby projects scrape (undocumented, can
+break without notice) and NOT a self-hosted LibreTranslate container (a
+multi-GB ML service -- more infrastructure than this project's scale needs).
 
 Results are cached in FoodExperienceTranslation, so each experience is only
-translated once per language, ever -- not on every page view. If the API is
-slow, down, or returns something unexpected, we fall back to the original
-English text rather than let a free third-party service ever break the page.
+translated once per language, ever -- not on every page view.
+
+CIRCUIT BREAKER: MyMemory's free tier has a real daily quota, and once it's
+hit, every request returns an error (HTTP 429). Without a circuit breaker,
+a full page of N experiences would retry the API N times on every single
+page load once the quota is exhausted -- each one adding real network
+latency -- which is exactly what caused this project's homepage to hang on
+"Loading experiences..." Once we see a failure, we stop calling the API
+entirely for a cooldown period and fall back to English immediately (no
+network call at all), so a struggling third-party API can never cascade
+into blocking the page for every visitor.
 """
 import requests
+from django.core.cache import cache
 
 MYMEMORY_URL = "https://api.mymemory.translated.net/get"
 
@@ -24,15 +32,25 @@ LANGPAIR_TARGET = {
     "ms": "ms",
 }
 
+_CIRCUIT_BREAKER_CACHE_KEY = "translation_api_unavailable"
+_CIRCUIT_BREAKER_COOLDOWN_SECONDS = 60 * 30  # 30 minutes
+
 
 def translate_text(text, target_lang, source_lang="en", timeout=5):
     """
     Translate `text` from English into `target_lang` ("zh" or "ms").
     Always returns a string -- the original `text` unchanged if translation
     isn't possible for any reason (unsupported language, empty text, the
-    API being unreachable, rate-limited, or returning something unexpected).
+    circuit breaker being open, or the API being unreachable/rate-limited/
+    returning something unexpected).
     """
     if not text or target_lang not in LANGPAIR_TARGET:
+        return text
+
+    if cache.get(_CIRCUIT_BREAKER_CACHE_KEY):
+        # We've failed recently -- don't even try. This is the fix: fail
+        # fast (no network call) instead of retrying a struggling API for
+        # every single experience on every single page load.
         return text
 
     langpair = f"{source_lang}|{LANGPAIR_TARGET[target_lang]}"
@@ -47,9 +65,18 @@ def translate_text(text, target_lang, source_lang="en", timeout=5):
         )
         response.raise_for_status()
         data = response.json()
+
+        # MyMemory sometimes returns HTTP 200 with an error embedded in the
+        # body (e.g. for some invalid-langpair cases) rather than a proper
+        # 4xx -- catch that explicitly too, not just raise_for_status().
+        response_status = data.get("responseStatus")
+        if response_status and int(response_status) >= 400:
+            raise requests.RequestException(data.get("responseDetails", "MyMemory API error"))
+
         translated = data.get("responseData", {}).get("translatedText")
         return translated or text
-    except (requests.RequestException, ValueError, KeyError):
+    except (requests.RequestException, ValueError, KeyError, TypeError):
+        cache.set(_CIRCUIT_BREAKER_CACHE_KEY, True, _CIRCUIT_BREAKER_COOLDOWN_SECONDS)
         return text
 
 
@@ -58,8 +85,9 @@ def get_or_create_translation(experience, lang):
     Return a cached FoodExperienceTranslation for (experience, lang),
     translating and caching it now if it doesn't exist yet. Returns None
     if the language isn't supported, or if translation didn't actually
-    produce anything different from the English original (API failure) --
-    callers should treat None as "just show the English version".
+    produce anything different from the English original (API failure or
+    circuit breaker open) -- callers should treat None as "just show the
+    English version".
     """
     from .models import FoodExperienceTranslation  # local import avoids a module-load-time cycle
 

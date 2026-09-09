@@ -117,6 +117,60 @@ VENDORS = [
         "latitude": 1.2857, "longitude": 103.8267,
         "phone": "+65 8234 5678",
     },
+    # --- Malay / Halal ---
+    {
+        "username": "hjmaimunah_vendor",
+        "business_name": "Hjh Maimunah Restaurant",
+        "description": (
+            "Muslim-owned Malay and Indonesian restaurant on Jalan Pisang, "
+            "recognised with a Michelin Bib Gourmand for eight consecutive "
+            "years running for its nasi padang spread."
+        ),
+        "cuisine_type": "Malay / Indonesian, Halal",
+        "address": "11-15 Jalan Pisang, Singapore 199078",
+        "latitude": 1.3025, "longitude": 103.8590,
+        "phone": "+65 6297 4294",
+    },
+    # --- Nyonya / Peranakan ---
+    {
+        "username": "candlenut_vendor",
+        "business_name": "Candlenut",
+        "description": (
+            "The world's first Michelin-starred Peranakan restaurant, "
+            "reworking Nyonya classics like buah keluak with fine-dining "
+            "technique at Dempsey Hill."
+        ),
+        "cuisine_type": "Peranakan / Nyonya",
+        "address": "17A Dempsey Rd, Singapore 249676",
+        "latitude": 1.3048, "longitude": 103.8103,
+        "phone": "+65 6733 8817",
+    },
+    {
+        "username": "trueblue_vendor",
+        "business_name": "True Blue Cuisine",
+        "description": (
+            "Family-recipe Peranakan restaurant on Armenian Street, next to "
+            "the Peranakan Museum, holding a Michelin Bib Gourmand for its "
+            "traditional Nyonya cooking."
+        ),
+        "cuisine_type": "Peranakan / Nyonya",
+        "address": "47/49 Armenian St, Singapore 179937",
+        "latitude": 1.2932, "longitude": 103.8497,
+        "phone": "+65 6440 0449",
+    },
+    {
+        "username": "guanhoesoon_vendor",
+        "business_name": "Guan Hoe Soon",
+        "description": (
+            "Cooking in Joo Chiat since 1953 -- one of Singapore's oldest "
+            "Peranakan restaurants, serving Nyonya classics from a "
+            "seasoned family kitchen."
+        ),
+        "cuisine_type": "Peranakan / Nyonya",
+        "address": "214 Joo Chiat Rd, Singapore 427475",
+        "latitude": 1.3110, "longitude": 103.9007,
+        "phone": "+65 6344 2761",
+    },
 ]
 
 # (vendor_username, title, description, category, price, duration_minutes,
@@ -212,6 +266,69 @@ EXPERIENCES = [
         FoodExperience.Category.COOKING_CLASS, 68.00, 120, 8,
         "Tiong Bahru cooking studio, Singapore",
         1.2857, 103.8267,
+    ),
+    # --- Malay / Halal ---
+    (
+        "hjmaimunah_vendor",
+        "Hjh Maimunah Nasi Padang Feast",
+        "A generous nasi padang spread at a Bib Gourmand institution: "
+        "beef rendang, ayam bakar, and a full glass showcase of Malay and "
+        "Indonesian kampung-style dishes to choose from.",
+        FoodExperience.Category.TASTING, 16.00, 40, 6,
+        "11-15 Jalan Pisang, Singapore 199078",
+        1.3025, 103.8590,
+    ),
+    # --- Nyonya / Peranakan ---
+    (
+        "candlenut_vendor",
+        "Candlenut Peranakan Tasting Menu",
+        "A multi-course tasting menu at the world's first Michelin-starred "
+        "Peranakan restaurant, reworking Nyonya classics like buah keluak "
+        "with fine-dining technique.",
+        FoodExperience.Category.FINE_DINING, 98.00, 120, 4,
+        "17A Dempsey Rd, Singapore 249676",
+        1.3048, 103.8103,
+    ),
+    (
+        "trueblue_vendor",
+        "True Blue Cuisine Nyonya Set Lunch",
+        "Family-recipe Nyonya cooking beside the Peranakan Museum on "
+        "Armenian Street -- ayam buah keluak and other Bib Gourmand-"
+        "recognised classics.",
+        FoodExperience.Category.TASTING, 45.00, 90, 6,
+        "47/49 Armenian St, Singapore 179937",
+        1.2932, 103.8497,
+    ),
+    (
+        "guanhoesoon_vendor",
+        "Guan Hoe Soon Heritage Peranakan Meal",
+        "A Nyonya meal at one of Singapore's oldest Peranakan restaurants, "
+        "cooking in Joo Chiat since 1953 -- ayam buah keluak and babi "
+        "pongteh from a seasoned family kitchen.",
+        FoodExperience.Category.TASTING, 38.00, 90, 6,
+        "214 Joo Chiat Rd, Singapore 427475",
+        1.3110, 103.9007,
+    ),
+    # --- Curated multi-stop trails (hosted by the tour operator) ---
+    (
+        "localtrails_vendor",
+        "Kampong Glam Malay Heritage Trail",
+        "A guided walk through Kampong Glam's Malay heritage -- Sultan "
+        "Mosque, the old Bugis kampong streets, and Hjh Maimunah's "
+        "Bib Gourmand nasi padang spread.",
+        FoodExperience.Category.MARKET_TOUR, 48.00, 150, 10,
+        "Kampong Glam, Singapore",
+        1.3025, 103.8595,
+    ),
+    (
+        "localtrails_vendor",
+        "Joo Chiat Nyonya Restaurant Crawl",
+        "A sit-down tasting crawl through Joo Chiat and Katong's Peranakan "
+        "restaurants, learning the Straits Chinese story behind dishes "
+        "like babi pongteh and ayam buah keluak.",
+        FoodExperience.Category.TASTING, 65.00, 180, 8,
+        "Joo Chiat, Singapore",
+        1.3110, 103.9007,
     ),
 ]
 

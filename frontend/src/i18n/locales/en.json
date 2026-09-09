@@ -8,7 +8,8 @@
     "adminPanel": "Admin Panel",
     "login": "Login",
     "logout": "Log out",
-    "hi": "Hi, {{name}} ({{role}})"
+    "hi": "Hi, {{name}} ({{role}})",
+    "tripPlannerChat": "AI Trip Planner"
   },
   "home": {
     "title": "Discover authentic local food experiences",
@@ -143,5 +144,20 @@
     "confirmed": "Confirmed",
     "cancelled": "Cancelled",
     "completed": "Completed"
+  },
+  "recommended": {
+    "title": "Recommended For You",
+    "subtitle": "Personalised from your favourites and bookings."
+  },
+  "tripPlanner": {
+    "title": "AI Trip Planner",
+    "disclaimer": "A rule-based assistant that matches your message against categories, areas, and budget — not a full AI conversation, but it'll find you real experiences.",
+    "intro": "Hi! Tell me what you're after — e.g. “street food near Chinatown under $20” — and I'll suggest some stops.",
+    "inputPlaceholder": "Describe what you're looking for...",
+    "send": "Send",
+    "error": "Something went wrong — please try again.",
+    "addAllToTrip": "Add all to my trip",
+    "addedAll": "Added to your trip!",
+    "addFailed": "Couldn't add some of these — try adding them individually from their pages."
   }
 }

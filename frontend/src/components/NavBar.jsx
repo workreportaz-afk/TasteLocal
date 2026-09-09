@@ -27,6 +27,7 @@ export default function NavBar() {
         {/* Tourist-only pages (admins can still see them, since RequireRole lets admins through everywhere) */}
         {(role === "tourist" || role === "admin") && <Link to="/saved">{t("nav.saved")}</Link>}
         {(role === "tourist" || role === "admin") && <Link to="/trip">{t("nav.planTrip")}</Link>}
+        {(role === "tourist" || role === "admin") && <Link to="/trip-planner">{t("nav.tripPlannerChat")}</Link>}
         {(role === "tourist" || role === "admin") && <Link to="/bookings">{t("nav.myBookings")}</Link>}
 
         {/* Vendor-only page */}
