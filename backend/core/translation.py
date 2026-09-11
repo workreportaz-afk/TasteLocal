@@ -80,6 +80,29 @@ def translate_text(text, target_lang, source_lang="en", timeout=5):
         return text
 
 
+def get_or_create_vendor_translation(vendor, lang):
+    """
+    Same pattern as get_or_create_translation, but for a Vendor's business
+    name. See VendorTranslation's docstring for the caveat about machine-
+    translating proper nouns -- this exists because it was explicitly
+    requested, not because it's guaranteed to read naturally.
+    """
+    from .models import VendorTranslation  # local import avoids a module-load-time cycle
+
+    if lang not in LANGPAIR_TARGET:
+        return None
+
+    cached = VendorTranslation.objects.filter(vendor=vendor, language=lang).first()
+    if cached:
+        return cached
+
+    translated_name = translate_text(vendor.business_name, lang)
+    if translated_name == vendor.business_name:
+        return None  # translation didn't actually happen -- don't cache a no-op row
+
+    return VendorTranslation.objects.create(vendor=vendor, language=lang, business_name=translated_name)
+
+
 def get_or_create_translation(experience, lang):
     """
     Return a cached FoodExperienceTranslation for (experience, lang),

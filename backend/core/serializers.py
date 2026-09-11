@@ -1,9 +1,11 @@
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils import timezone as django_timezone
 from rest_framework import serializers
 
 from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop
-from .translation import get_or_create_translation
+from .translation import get_or_create_translation, get_or_create_vendor_translation
+from .emails import send_booking_created_emails, send_booking_status_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -80,6 +82,7 @@ class VendorSerializer(serializers.ModelSerializer):
         fields = [
             "id", "user", "business_name", "description", "cuisine_type",
             "address", "latitude", "longitude", "phone", "logo",
+            "opening_time", "closing_time", "hours_note",
             "is_approved", "created_at",
         ]
         read_only_fields = ["is_approved"]
@@ -99,6 +102,11 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You can only review your own bookings.")
         if booking.status != Booking.Status.COMPLETED:
             raise serializers.ValidationError("You can only review completed experiences.")
+        # Kept here (not just at the DB level) so a duplicate review attempt
+        # returns a clean 400 with a helpful message instead of an
+        # IntegrityError 500, since Review.booking is a OneToOneField.
+        if hasattr(booking, "review"):
+            raise serializers.ValidationError("You've already reviewed this booking.")
         return booking
 
     def create(self, validated_data):
@@ -140,6 +148,9 @@ class FoodExperienceListSerializer(serializers.ModelSerializer):
             translation = get_or_create_translation(instance, lang)
             if translation:
                 data["title"] = translation.title
+            vendor_translation = get_or_create_vendor_translation(instance.vendor, lang)
+            if vendor_translation:
+                data["vendor_name"] = vendor_translation.business_name
         return data
 
 
@@ -172,6 +183,9 @@ class FoodExperienceDetailSerializer(serializers.ModelSerializer):
             if translation:
                 data["title"] = translation.title
                 data["description"] = translation.description
+            vendor_translation = get_or_create_vendor_translation(instance.vendor, lang)
+            if vendor_translation:
+                data["vendor"]["business_name"] = vendor_translation.business_name
         return data
 
 
@@ -198,14 +212,19 @@ class FoodExperienceWriteSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     tourist = UserSerializer(read_only=True)
     experience_title = serializers.CharField(source="experience.title", read_only=True)
+    has_review = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
         fields = [
             "id", "experience", "experience_title", "tourist", "booking_date",
             "number_of_participants", "status", "total_price", "created_at",
+            "has_review",
         ]
         read_only_fields = ["status", "total_price"]
+
+    def get_has_review(self, obj):
+        return hasattr(obj, "review")
 
     def validate(self, attrs):
         experience = attrs.get("experience") or getattr(self.instance, "experience", None)
@@ -217,6 +236,29 @@ class BookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f"This experience allows a maximum of {experience.max_participants} participants."
             )
+
+        booking_date = attrs.get("booking_date") or getattr(self.instance, "booking_date", None)
+        if experience and booking_date:
+            vendor = experience.vendor
+            # Only enforced when the vendor has actually set hours -- a
+            # vendor who hasn't filled this in yet shouldn't have every
+            # booking silently rejected. Note: doesn't handle overnight
+            # ranges (e.g. 6pm-2am) -- that's a documented limitation of
+            # keeping this to one simple daily window rather than a full
+            # per-day schedule model.
+            if vendor.opening_time and vendor.closing_time:
+                # booking_date is stored as a UTC-aware datetime internally
+                # (USE_TZ=True) -- convert back to the project's local
+                # timezone (Asia/Singapore) before comparing time-of-day,
+                # or this would incorrectly compare against UTC clock time
+                # while opening_time/closing_time are naturally entered by
+                # vendors in local time.
+                booking_time = django_timezone.localtime(booking_date).time()
+                if not (vendor.opening_time <= booking_time <= vendor.closing_time):
+                    raise serializers.ValidationError(
+                        f"{vendor.business_name} is only open {vendor.opening_time.strftime('%H:%M')}"
+                        f"–{vendor.closing_time.strftime('%H:%M')}. Please choose a time in that window."
+                    )
         return attrs
 
     @transaction.atomic
@@ -224,7 +266,58 @@ class BookingSerializer(serializers.ModelSerializer):
         validated_data["tourist"] = self.context["request"].user
         experience = validated_data["experience"]
         validated_data["total_price"] = experience.price * validated_data["number_of_participants"]
-        return super().create(validated_data)
+        booking = super().create(validated_data)
+        # Fire-and-forget confirmation emails to both sides (see core/emails.py).
+        send_booking_created_emails(booking)
+        return booking
+
+
+class VendorBookingStatusSerializer(serializers.ModelSerializer):
+    """
+    Used by vendors on /api/vendor-bookings/<id>/ to confirm/decline/complete
+    a booking for one of their own experiences. Only `status` is writable --
+    everything else about a booking is set by the tourist at creation time.
+    """
+
+    tourist = UserSerializer(read_only=True)
+    experience_title = serializers.CharField(source="experience.title", read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            "id", "experience", "experience_title", "tourist", "booking_date",
+            "number_of_participants", "status", "total_price", "created_at",
+        ]
+        read_only_fields = [
+            "experience", "experience_title", "tourist", "booking_date",
+            "number_of_participants", "total_price", "created_at",
+        ]
+
+    # Only these forward transitions are allowed -- e.g. you can't "un-cancel"
+    # a booking or confirm something that's already completed.
+    ALLOWED_TRANSITIONS = {
+        Booking.Status.PENDING: {Booking.Status.CONFIRMED, Booking.Status.CANCELLED},
+        Booking.Status.CONFIRMED: {Booking.Status.COMPLETED, Booking.Status.CANCELLED},
+        Booking.Status.CANCELLED: set(),
+        Booking.Status.COMPLETED: set(),
+    }
+
+    def validate_status(self, new_status):
+        current_status = self.instance.status
+        if new_status == current_status:
+            return new_status
+        if new_status not in self.ALLOWED_TRANSITIONS.get(current_status, set()):
+            raise serializers.ValidationError(
+                f"Can't change status from '{current_status}' to '{new_status}'."
+            )
+        return new_status
+
+    def update(self, instance, validated_data):
+        old_status = instance.status
+        instance = super().update(instance, validated_data)
+        if instance.status != old_status:
+            send_booking_status_email(instance)
+        return instance
 
 
 class SavedExperienceSerializer(serializers.ModelSerializer):

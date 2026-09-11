@@ -9,7 +9,8 @@
     "login": "登录",
     "logout": "退出登录",
     "hi": "您好，{{name}}（{{role}}）",
-    "tripPlannerChat": "AI 行程规划助手"
+    "tripPlannerChat": "AI 行程规划助手",
+    "register": "注册"
   },
   "home": {
     "title": "发现地道本地美食体验",
@@ -25,7 +26,10 @@
     "locationUnsupported": "您的浏览器不支持定位功能 — 请尝试按名称搜索。",
     "locationDenied": "无法获取您的位置 — 请检查浏览器的定位权限。",
     "distanceAway": "距离 {{distance}} 公里",
-    "noReviewsYet": "暂无评价"
+    "noReviewsYet": "暂无评价",
+    "previousPage": "← 上一页",
+    "nextPage": "下一页 →",
+    "pageIndicator": "第 {{page}} 页 · 共 {{total}} 项"
   },
   "category": {
     "street_food": "街头美食之旅",
@@ -82,7 +86,9 @@
     "dateTime": "日期与时间",
     "participants": "人数",
     "total": "总计：",
-    "requestBooking": "提交预订请求"
+    "requestBooking": "提交预订请求",
+    "back": "返回",
+    "openingHours": "营业时间："
   },
   "bookings": {
     "title": "我的预订",
@@ -128,11 +134,41 @@
     "addressNotFound": "找不到该地址，请尝试提供更多详情（例如街道和邮编）。",
     "geocodeFailed": "坐标查找失败，您可以先留空坐标，稍后再补充。",
     "experienceCreated": "体验已创建。",
-    "saveFailed": "保存失败，请确认您已设置商家资料。"
+    "saveFailed": "保存失败，请确认您已设置商家资料。",
+    "openingTime": "开始营业时间",
+    "closingTime": "结束营业时间",
+    "hoursNote": "营业时间备注（可选）",
+    "hoursNotePlaceholder": "例如：周一休息",
+    "yourStall": "您的摊位 / 商家资料",
+    "businessNameLabel": "商家名称",
+    "cuisineType": "菜系类型",
+    "phone": "电话",
+    "saveStall": "保存商家资料",
+    "stallUpdated": "商家资料已更新。",
+    "stallSaveFailed": "商家资料保存失败。",
+    "editListing": "编辑体验",
+    "edit": "编辑",
+    "saveChanges": "保存更改",
+    "cancelEdit": "取消编辑",
+    "experienceUpdated": "体验已更新。",
+    "bookingsForYourStall": "您摊位的预订",
+    "tourist": "游客",
+    "actions": "操作",
+    "confirm": "确认",
+    "decline": "拒绝",
+    "markCompleted": "标记为已完成",
+    "cancel": "取消",
+    "noBookings": "您发布的体验暂无预订。",
+    "bookingUpdateFailed": "更新此预订失败。"
   },
   "review": {
     "empty": "暂无评价 — 成为第一个评价的人吧！",
-    "by": "由 {{name}} 撰写"
+    "by": "由 {{name}} 撰写",
+    "writeReview": "撰写评价",
+    "rating": "评分",
+    "comment": "评论",
+    "submit": "提交评价",
+    "submitFailed": "评价提交失败。您只能评价已完成且尚未评价过的预订。"
   },
   "roleBlocked": {
     "title": "此账户无法使用该页面",

@@ -58,6 +58,14 @@ body { margin: 0; background: var(--bg); color: var(--dark); }
 .status-completed { background: #e0e7ff; }
 
 .error { color: #b91c1c; }
+
+.back-button {
+  background: none; border: none; color: var(--primary); font-weight: 600;
+  font-size: 0.95rem; cursor: pointer; padding: 0; margin-bottom: 1rem; display: block;
+}
+.pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 2rem; }
+.pagination button { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; }
+.pagination button:disabled { opacity: 0.4; cursor: default; }
 .message { color: #065f46; }
 .review-list { list-style: none; padding: 0; }
 .review-list li { border-bottom: 1px solid #eee; padding: 0.5rem 0; }
@@ -86,6 +94,30 @@ body { margin: 0; background: var(--bg); color: var(--dark); }
 .vendor-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
 .vendor-list-item { display: flex; align-items: center; gap: 0.75rem; background: white; padding: 0.5rem 0.75rem; border-radius: 8px; }
 .vendor-list-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.vendor-list-item { justify-content: space-between; }
+.vendor-list-item .vendor-list-actions { display: flex; gap: 0.5rem; margin-left: auto; }
+.vendor-list-item button { padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer; }
+
+.auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+.auth-tab {
+  flex: 1; text-align: center; padding: 0.5rem; text-decoration: none; color: var(--muted);
+  border-bottom: 2px solid #eee; font-weight: 600;
+}
+.auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.vendor-section { margin-top: 2.5rem; }
+.vendor-bookings-table { width: 100%; border-collapse: collapse; background: white; }
+.vendor-bookings-table th, .vendor-bookings-table td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #eee; }
+.vendor-bookings-table .booking-actions { display: flex; gap: 0.5rem; }
+.vendor-bookings-table .booking-actions button { padding: 0.35rem 0.7rem; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer; }
+.vendor-bookings-table .booking-actions button.confirm { background: #d1fae5; border-color: #34d399; }
+.vendor-bookings-table .booking-actions button.cancel { background: #fee2e2; border-color: #f87171; }
+.vendor-bookings-table .booking-actions button.complete { background: #e0e7ff; border-color: #818cf8; }
+
+.review-form { background: white; padding: 1rem 1.25rem; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin: 1rem 0; display: flex; flex-direction: column; gap: 0.6rem; max-width: 420px; }
+.review-form label { display: flex; flex-direction: column; font-size: 0.9rem; gap: 0.25rem; }
+.review-form select, .review-form textarea { padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; }
+.review-form button { background: var(--primary); color: white; border: none; padding: 0.6rem; border-radius: 6px; cursor: pointer; font-weight: 600; align-self: flex-start; }
 
 .role-blocked { background: white; padding: 2rem; border-radius: 10px; text-align: center; max-width: 480px; margin: 2rem auto; }
 .approval-banner { background: #fff7e6; border: 1px solid #f5c96b; color: #7a5c00; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }

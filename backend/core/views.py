@@ -2,20 +2,24 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Avg, Q
 from django.shortcuts import render
-from rest_framework import viewsets, permissions, generics, filters
+from rest_framework import viewsets, permissions, generics, filters, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .geo import haversine_km
 from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop
-from .permissions import IsOwnerVendorOrReadOnly, IsBookingOwner
+from .permissions import (
+    IsOwnerVendorOrReadOnly, IsOwnVendorProfileOrReadOnly, IsBookingOwner,
+    IsVendor, IsVendorOfBooking,
+)
 from .recommendations import get_recommendations_for_user
 from .trip_planner import plan_trip
 from .serializers import (
     RegisterSerializer, UserSerializer, VendorSerializer, FoodExperienceListSerializer,
     FoodExperienceDetailSerializer, FoodExperienceWriteSerializer,
-    BookingSerializer, ReviewSerializer, SavedExperienceSerializer, ItineraryStopSerializer,
+    BookingSerializer, VendorBookingStatusSerializer, ReviewSerializer,
+    SavedExperienceSerializer, ItineraryStopSerializer,
 )
 
 
@@ -40,10 +44,30 @@ class MeView(generics.RetrieveAPIView):
 class VendorViewSet(viewsets.ModelViewSet):
     queryset = Vendor.objects.select_related("user").all()
     serializer_class = VendorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # IsOwnVendorProfileOrReadOnly stops one vendor from editing another
+    # vendor's profile -- previously ANY authenticated user could PATCH/DELETE
+    # any /api/vendors/<id>/, which is also how a vendor's own edits could be
+    # accidentally clobbered.
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnVendorProfileOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=["get", "patch"], permission_classes=[permissions.IsAuthenticated, IsVendor])
+    def me(self, request):
+        """
+        GET/PATCH /api/vendors/me/ -- convenience endpoint so the frontend
+        doesn't need to already know its own vendor id to edit its stall
+        profile (business name, description, address, phone, logo).
+        """
+        vendor = request.user.vendor_profile
+        if request.method == "GET":
+            serializer = self.get_serializer(vendor)
+            return Response(serializer.data)
+        serializer = self.get_serializer(vendor, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class FoodExperienceViewSet(viewsets.ModelViewSet):
@@ -157,10 +181,38 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated, IsBookingOwner]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["experience", "status"]
 
     def get_queryset(self):
         return Booking.objects.select_related("experience", "tourist").filter(
             tourist=self.request.user
+        )
+
+
+class VendorBookingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
+                            mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+    """
+    /api/vendor-bookings/            GET  -- bookings for the logged-in vendor's own experiences
+    /api/vendor-bookings/{id}/       GET  -- one booking's detail
+    /api/vendor-bookings/{id}/       PATCH {"status": "confirmed"|"cancelled"|"completed"}
+
+    This is what was missing for a vendor to (a) see who has booked their
+    stall/experience and (b) confirm or decline a "pending" booking --
+    previously there was no vendor-facing booking endpoint at all.
+    """
+
+    serializer_class = VendorBookingStatusSerializer
+    permission_classes = [permissions.IsAuthenticated, IsVendor, IsVendorOfBooking]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["experience", "status"]
+
+    def get_queryset(self):
+        vendor = self.request.user.vendor_profile
+        return (
+            Booking.objects.select_related("experience", "tourist")
+            .filter(experience__vendor=vendor)
+            .order_by("-created_at")
         )
 
 

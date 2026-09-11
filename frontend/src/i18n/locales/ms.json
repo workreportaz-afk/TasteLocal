@@ -9,7 +9,8 @@
     "login": "Log Masuk",
     "logout": "Log Keluar",
     "hi": "Hai, {{name}} ({{role}})",
-    "tripPlannerChat": "Perancang Perjalanan AI"
+    "tripPlannerChat": "Perancang Perjalanan AI",
+    "register": "Daftar"
   },
   "home": {
     "title": "Temui pengalaman makanan tempatan yang autentik",
@@ -25,7 +26,10 @@
     "locationUnsupported": "Pelayar anda tidak menyokong lokasi — cuba cari mengikut nama sebaliknya.",
     "locationDenied": "Tidak dapat mendapatkan lokasi anda — sila semak kebenaran lokasi pelayar anda.",
     "distanceAway": "{{distance}} km jauhnya",
-    "noReviewsYet": "Belum ada ulasan"
+    "noReviewsYet": "Belum ada ulasan",
+    "previousPage": "← Sebelumnya",
+    "nextPage": "Seterusnya →",
+    "pageIndicator": "Halaman {{page}} · {{total}} jumlah"
   },
   "category": {
     "street_food": "Lawatan Makanan Jalanan",
@@ -82,7 +86,9 @@
     "dateTime": "Tarikh & masa",
     "participants": "Peserta",
     "total": "Jumlah:",
-    "requestBooking": "Hantar permintaan tempahan"
+    "requestBooking": "Hantar permintaan tempahan",
+    "back": "Kembali",
+    "openingHours": "Waktu operasi:"
   },
   "bookings": {
     "title": "Tempahan Saya",
@@ -128,11 +134,41 @@
     "addressNotFound": "Alamat tidak dijumpai. Cuba tambah lebih perincian (contohnya nama jalan + poskod).",
     "geocodeFailed": "Carian koordinat gagal. Anda boleh biarkan koordinat kosong dan tambah kemudian.",
     "experienceCreated": "Pengalaman berjaya dicipta.",
-    "saveFailed": "Tidak dapat menyimpan. Pastikan anda telah menyediakan profil Vendor."
+    "saveFailed": "Tidak dapat menyimpan. Pastikan anda telah menyediakan profil Vendor.",
+    "openingTime": "Waktu buka",
+    "closingTime": "Waktu tutup",
+    "hoursNote": "Nota waktu operasi (pilihan)",
+    "hoursNotePlaceholder": "cth. Tutup pada hari Isnin",
+    "yourStall": "Gerai / Profil perniagaan anda",
+    "businessNameLabel": "Nama perniagaan",
+    "cuisineType": "Jenis masakan",
+    "phone": "Telefon",
+    "saveStall": "Simpan profil gerai",
+    "stallUpdated": "Profil gerai dikemas kini.",
+    "stallSaveFailed": "Gagal menyimpan profil gerai.",
+    "editListing": "Sunting penyenaraian",
+    "edit": "Sunting",
+    "saveChanges": "Simpan perubahan",
+    "cancelEdit": "Batal sunting",
+    "experienceUpdated": "Pengalaman dikemas kini.",
+    "bookingsForYourStall": "Tempahan untuk gerai anda",
+    "tourist": "Pelancong",
+    "actions": "Tindakan",
+    "confirm": "Sahkan",
+    "decline": "Tolak",
+    "markCompleted": "Tanda selesai",
+    "cancel": "Batal",
+    "noBookings": "Belum ada tempahan untuk penyenaraian anda.",
+    "bookingUpdateFailed": "Gagal mengemas kini tempahan ini."
   },
   "review": {
     "empty": "Belum ada ulasan — jadilah yang pertama!",
-    "by": "oleh {{name}}"
+    "by": "oleh {{name}}",
+    "writeReview": "Tulis ulasan",
+    "rating": "Penilaian",
+    "comment": "Komen",
+    "submit": "Hantar ulasan",
+    "submitFailed": "Gagal menghantar ulasan. Anda hanya boleh mengulas tempahan yang telah selesai dan belum diulas."
   },
   "roleBlocked": {
     "title": "Tidak tersedia untuk akaun anda",

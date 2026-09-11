@@ -17,8 +17,25 @@ export default function Home() {
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState("");
 
+  // Pagination: the API only returns 12 results per page by default (see
+  // backend PAGE_SIZE). Previously this page ignored `data.next`/`data.count`
+  // entirely, so anything past the first page (e.g. an experience added
+  // later, or alphabetically "later") was completely unreachable by
+  // browsing -- only `search` could ever surface it.
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Reset to page 1 whenever a filter changes -- otherwise changing the
+  // search term while on page 3 would silently keep requesting page 3 of
+  // the NEW filtered results, which may not even have 3 pages.
   useEffect(() => {
-    const params = {};
+    setPage(1);
+  }, [search, category, nearMe, i18n.language]);
+
+  useEffect(() => {
+    const params = { page };
     if (search) params.search = search;
     if (category) params.category = category;
     if (nearMe) {
@@ -29,7 +46,12 @@ export default function Home() {
     setLoading(true);
     client
       .get("/experiences/", { params })
-      .then(({ data }) => setExperiences(data.results ?? data))
+      .then(({ data }) => {
+        setExperiences(data.results ?? data);
+        setHasNext(!!data.next);
+        setHasPrevious(!!data.previous);
+        setTotalCount(data.count ?? (data.results ?? data).length);
+      })
       .catch(() => setError(t("home.loadError")))
       .finally(() => setLoading(false));
     // `t` is intentionally excluded here -- it's only used for a static
@@ -43,7 +65,7 @@ export default function Home() {
     // this, switching languages wouldn't re-fetch, and already-loaded
     // content would stay in whatever language it was first fetched in.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, category, nearMe, i18n.language]);
+  }, [search, category, nearMe, i18n.language, page]);
 
   function handleNearMe() {
     if (nearMe) {
@@ -106,6 +128,18 @@ export default function Home() {
         ))}
         {!loading && !error && experiences.length === 0 && <p>{t("home.noResults")}</p>}
       </div>
+
+      {!loading && !error && (hasNext || hasPrevious) && (
+        <div className="pagination">
+          <button type="button" onClick={() => setPage((p) => p - 1)} disabled={!hasPrevious}>
+            {t("home.previousPage")}
+          </button>
+          <span className="muted">{t("home.pageIndicator", { page, total: totalCount })}</span>
+          <button type="button" onClick={() => setPage((p) => p + 1)} disabled={!hasNext}>
+            {t("home.nextPage")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

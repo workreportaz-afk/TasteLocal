@@ -20,7 +20,7 @@ from django.db.models import Q, Case, When, Value, IntegerField
 from .models import FoodExperience
 
 
-def get_recommendations_for_user(user, queryset, limit=6):
+def get_recommendations_for_user(user, queryset, limit=4):
     """
     `queryset` should already be filtered to what this user is allowed to
     see (approved vendors, is_active, etc.) -- see FoodExperienceViewSet.

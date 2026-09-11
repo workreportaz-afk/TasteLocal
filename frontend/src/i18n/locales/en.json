@@ -9,7 +9,8 @@
     "login": "Login",
     "logout": "Log out",
     "hi": "Hi, {{name}} ({{role}})",
-    "tripPlannerChat": "AI Trip Planner"
+    "tripPlannerChat": "AI Trip Planner",
+    "register": "Register"
   },
   "home": {
     "title": "Discover authentic local food experiences",
@@ -25,7 +26,10 @@
     "locationUnsupported": "Your browser doesn't support location — try searching by name instead.",
     "locationDenied": "Couldn't get your location — check your browser's location permission.",
     "distanceAway": "{{distance}} km away",
-    "noReviewsYet": "No reviews yet"
+    "noReviewsYet": "No reviews yet",
+    "previousPage": "← Previous",
+    "nextPage": "Next →",
+    "pageIndicator": "Page {{page}} · {{total}} total"
   },
   "category": {
     "street_food": "Street Food Tour",
@@ -82,7 +86,9 @@
     "dateTime": "Date & time",
     "participants": "Participants",
     "total": "Total:",
-    "requestBooking": "Request booking"
+    "requestBooking": "Request booking",
+    "back": "Back",
+    "openingHours": "Opening hours:"
   },
   "bookings": {
     "title": "My Bookings",
@@ -128,11 +134,41 @@
     "addressNotFound": "Couldn't find that address. Try adding more detail (e.g. street + postal code).",
     "geocodeFailed": "Geocoding lookup failed. You can leave coordinates blank and add them later.",
     "experienceCreated": "Experience created.",
-    "saveFailed": "Could not save. Make sure you have a Vendor profile set up first."
+    "saveFailed": "Could not save. Make sure you have a Vendor profile set up first.",
+    "yourStall": "Your stall / business profile",
+    "businessNameLabel": "Business name",
+    "cuisineType": "Cuisine type",
+    "phone": "Phone",
+    "saveStall": "Save stall profile",
+    "stallUpdated": "Stall profile updated.",
+    "stallSaveFailed": "Could not save stall profile.",
+    "editListing": "Edit listing",
+    "edit": "Edit",
+    "saveChanges": "Save changes",
+    "cancelEdit": "Cancel edit",
+    "experienceUpdated": "Experience updated.",
+    "bookingsForYourStall": "Bookings for your stall",
+    "tourist": "Tourist",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "decline": "Decline",
+    "markCompleted": "Mark completed",
+    "cancel": "Cancel",
+    "noBookings": "No bookings yet for your listings.",
+    "bookingUpdateFailed": "Could not update this booking.",
+    "openingTime": "Opening time",
+    "closingTime": "Closing time",
+    "hoursNote": "Hours note (optional)",
+    "hoursNotePlaceholder": "e.g. Closed on Mondays"
   },
   "review": {
     "empty": "No reviews yet — be the first!",
-    "by": "by {{name}}"
+    "by": "by {{name}}",
+    "writeReview": "Write a review",
+    "rating": "Rating",
+    "comment": "Comment",
+    "submit": "Submit review",
+    "submitFailed": "Could not submit review. You can only review completed bookings you haven't already reviewed."
   },
   "roleBlocked": {
     "title": "Not available for your account",

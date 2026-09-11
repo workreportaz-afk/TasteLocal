@@ -22,8 +22,49 @@ class Vendor(models.Model):
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Operating hours -- deliberately simple (one daily open/close window,
+    # not a full per-day schedule) to keep this both easy to fill in from
+    # the Vendor Dashboard and easy to validate a booking time against.
+    # `hours_note` covers exceptions in free text (e.g. "Closed on Mondays",
+    # "Kitchen closes 30 min before closing time") since a fully structured
+    # per-day, per-exception schedule is more complexity than a coursework
+    # MVP needs -- a good documented trade-off, not an oversight.
+    opening_time = models.TimeField(null=True, blank=True)
+    closing_time = models.TimeField(null=True, blank=True)
+    hours_note = models.CharField(max_length=255, blank=True)
+
     def __str__(self):
         return self.business_name
+
+
+class VendorTranslation(models.Model):
+    """
+    Cached machine translation of a vendor's business name. Separate from
+    FoodExperienceTranslation since it's a different model entirely.
+
+    Worth a documented caveat: business names are proper nouns, and general-
+    purpose machine translation (MyMemory here) doesn't know that -- it may
+    produce an odd or nonsensical result for something like "Local Food
+    Trails SG" rather than leaving it as-is. This was added on explicit
+    request rather than by default (see core/translation.py's original
+    design note that vendor names were deliberately left untranslated,
+    matching how Yelp/Google Maps handle business names).
+    """
+
+    class Language(models.TextChoices):
+        ZH = "zh", "Chinese (Simplified)"
+        MS = "ms", "Bahasa Melayu"
+
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="translations")
+    language = models.CharField(max_length=5, choices=Language.choices)
+    business_name = models.CharField(max_length=255)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ["vendor", "language"]
+
+    def __str__(self):
+        return f"{self.vendor.business_name} [{self.language}]"
 
 
 class FoodExperience(models.Model):

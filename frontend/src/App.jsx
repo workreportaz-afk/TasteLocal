@@ -5,6 +5,7 @@ import Home from "./pages/Home.jsx";
 import ExperienceDetail from "./pages/ExperienceDetail.jsx";
 import Bookings from "./pages/Bookings.jsx";
 import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 import VendorDashboard from "./pages/VendorDashboard.jsx";
 import Saved from "./pages/Saved.jsx";
 import PlanMyTrip from "./pages/PlanMyTrip.jsx";
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/experiences/:id" element={<ExperienceDetail />} />
           <Route path="/bookings" element={<RequireRole allow={["tourist"]}><Bookings /></RequireRole>} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/vendor" element={<RequireRole allow={["vendor"]}><VendorDashboard /></RequireRole>} />
           <Route path="/saved" element={<RequireRole allow={["tourist"]}><Saved /></RequireRole>} />
           <Route path="/trip" element={<RequireRole allow={["tourist"]}><PlanMyTrip /></RequireRole>} />

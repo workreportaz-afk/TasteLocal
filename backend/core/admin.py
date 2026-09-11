@@ -1,10 +1,13 @@
 from django.contrib import admin
-from .models import Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop, FoodExperienceTranslation
+from .models import (
+    Vendor, FoodExperience, Booking, Review, SavedExperience, ItineraryStop,
+    FoodExperienceTranslation, VendorTranslation,
+)
 
 
 @admin.register(Vendor)
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ["business_name", "user", "cuisine_type", "is_approved", "created_at"]
+    list_display = ["business_name", "user", "cuisine_type", "opening_time", "closing_time", "is_approved", "created_at"]
     list_filter = ["is_approved", "cuisine_type"]
     search_fields = ["business_name", "user__username"]
 
@@ -44,3 +47,10 @@ class FoodExperienceTranslationAdmin(admin.ModelAdmin):
     list_display = ["experience", "language", "title", "updated_at"]
     list_filter = ["language"]
     search_fields = ["title", "experience__title"]
+
+
+@admin.register(VendorTranslation)
+class VendorTranslationAdmin(admin.ModelAdmin):
+    list_display = ["vendor", "language", "business_name", "updated_at"]
+    list_filter = ["language"]
+    search_fields = ["business_name", "vendor__business_name"]

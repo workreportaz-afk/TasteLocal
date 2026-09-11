@@ -57,7 +57,10 @@ export default function NavBar() {
             </button>
           </>
         ) : (
-          <Link to="/login">{t("nav.login")}</Link>
+          <>
+            <Link to="/login">{t("nav.login")}</Link>
+            <Link to="/register">{t("nav.register")}</Link>
+          </>
         )}
       </nav>
     </header>

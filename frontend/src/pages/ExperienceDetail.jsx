@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import client from "../api/client.js";
 import ReviewList from "../components/ReviewList.jsx";
+import ReviewForm from "../components/ReviewForm.jsx";
 import LocationMap from "../components/LocationMap.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function ExperienceDetail() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [experience, setExperience] = useState(null);
   const [bookingDate, setBookingDate] = useState("");
@@ -19,8 +21,12 @@ export default function ExperienceDetail() {
   const [actionMessage, setActionMessage] = useState("");
 
   useEffect(() => {
-    client.get(`/experiences/${id}/`).then(({ data }) => setExperience(data));
+    loadExperience();
   }, [id, i18n.language]);
+
+  function loadExperience() {
+    client.get(`/experiences/${id}/`).then(({ data }) => setExperience(data));
+  }
 
   // Check saved/trip status once logged in -- these are small personal lists,
   // fine to fetch and search client-side rather than adding a dedicated endpoint.
@@ -83,7 +89,11 @@ export default function ExperienceDetail() {
   if (!experience) return <p>{t("common.loading")}</p>;
 
   return (
-    <div className="detail-layout">
+    <>
+      <button type="button" className="back-button" onClick={() => navigate(-1)}>
+        ← {t("detail.back")}
+      </button>
+      <div className="detail-layout">
       <div>
         {experience.image && <img src={experience.image} alt={experience.title} className="detail-image" />}
         <h1>{experience.title}</h1>
@@ -104,6 +114,13 @@ export default function ExperienceDetail() {
         <p><strong>{t("detail.maxParticipants")}</strong> {experience.max_participants}</p>
         <p><strong>{t("detail.price")}</strong> ${experience.price} {t("detail.perPerson")}</p>
         {experience.address && <p><strong>{t("detail.location")}</strong> {experience.address}</p>}
+        {experience.vendor?.opening_time && experience.vendor?.closing_time && (
+          <p>
+            <strong>{t("detail.openingHours")}</strong>{" "}
+            {experience.vendor.opening_time.slice(0, 5)}–{experience.vendor.closing_time.slice(0, 5)}
+            {experience.vendor.hours_note && ` (${experience.vendor.hours_note})`}
+          </p>
+        )}
 
         <LocationMap
           latitude={experience.latitude}
@@ -112,6 +129,7 @@ export default function ExperienceDetail() {
         />
 
         <h2>{t("detail.reviews")} {experience.average_rating ? `(★ ${experience.average_rating})` : ""}</h2>
+        <ReviewForm experienceId={id} onReviewAdded={loadExperience} />
         <ReviewList reviews={experience.reviews} />
       </div>
 
@@ -140,6 +158,7 @@ export default function ExperienceDetail() {
         <button type="submit">{t("detail.requestBooking")}</button>
         {message && <p className="message">{message}</p>}
       </form>
-    </div>
+      </div>
+    </>
   );
 }

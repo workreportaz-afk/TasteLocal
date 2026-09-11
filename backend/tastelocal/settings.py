@@ -126,6 +126,23 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 
+# --- Email (booking confirmation emails to tourist + vendor) ---
+# Dev default: EMAIL_HOST is empty, so we fall back to the console backend --
+# emails are printed to `docker compose logs -f backend` instead of actually
+# being sent. Fill in EMAIL_HOST/EMAIL_HOST_USER/EMAIL_HOST_PASSWORD in your
+# .env to send real emails (e.g. a free Gmail "app password", or a free
+# Mailtrap sandbox inbox -- either works fine for a student project).
+EMAIL_HOST = config("EMAIL_HOST", default="")
+if EMAIL_HOST:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+    EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+    EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+    EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="TasteLocal <noreply@tastelocal.local>")
+
 # Used by the backend's root landing page (see core/views.home) to link to
 # the frontend app. In dev this is the Vite dev server; in production this
 # would be your real public domain (nginx serves both from the same origin
